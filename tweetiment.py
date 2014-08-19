@@ -6,6 +6,7 @@ except ImportError:
     import tkinter as tk     ## Python 3.x 
 
 import os
+import ttk
 from ttk import Frame, Style
 import tkMessageBox
 import ConfigParser
@@ -44,16 +45,17 @@ class TweetimentFrame(tk.Frame):
 
         var = tk.StringVar()
        
-
         if not os.path.isfile(self.ConfigFile):
             var.set("Update required.")
+            
             TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = var)
             TwitterStreamStatusLabel.place(x = 320, y = 100, width = 200, height = 30)
         else:
-            with open('config.json', 'r') as f:
-                self.config = json.load(f)
+            
                 
             try:
+                with open('config.json', 'r') as f:
+                    self.config = json.load(f)
                 updated = self.config['TwitterStreamLastUpdated']
                 var.set("Last updated on: " + updated)
             except e:
@@ -62,7 +64,7 @@ class TweetimentFrame(tk.Frame):
             TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = var)
             TwitterStreamStatusLabel.place(x = 320, y = 100, width = 200, height = 30)
 
-        TweetimentCloseButton = tk.Button(self.parent, text = "Update Twitter Stream", command = self.updateTwitterStream(), bg="blue", fg="white")
+        TweetimentCloseButton = tk.Button(self.parent, text = "Update Twitter Stream", command = self.updateTwitterStream, bg="blue", fg="white")
         TweetimentCloseButton.place(x = 100, y = 100, width = 200, height = 30)
         
         TweetimentCloseButton = tk.Button(self.parent, text = "Exit", command = lambda: self.parent.destroy(), bg="blue", fg="white")
@@ -208,6 +210,9 @@ class TweetimentFrame(tk.Frame):
 
     def updateTwitterStream(self):
 
+        self.pb = ttk.Progressbar(self.parent, orient=tk.HORIZONTAL, mode='indeterminate', length = 200)
+        self.pb.pack(side = tk.BOTTOM, fill = tk.BOTH)
+        self.pb.start()
         st = datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%Y %H:%M:%S')
 
         self.config['TwitterStreamLastUpdated'] = st
@@ -215,7 +220,8 @@ class TweetimentFrame(tk.Frame):
         with open('config.json', 'w') as f:
             json.dump(self.config, f)
 
-        self.initUI()    
+        self.pb.stop()
+        self.pb.pack_forget()
             
         
     
