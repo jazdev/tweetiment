@@ -12,6 +12,8 @@ import tkMessageBox
 import ConfigParser
 import time, datetime
 import json
+import oauth2 as oauth
+import urllib2 as urllib
 
 class TweetimentFrame(tk.Frame):
     """
@@ -21,6 +23,8 @@ class TweetimentFrame(tk.Frame):
     count = 0
     
     twitterAuthOpenedFlag = False
+    twitterAuthCompletedFlag = False
+    
     twitterStreamUpdatedFlag = False
     
     TwitterKeysFile = "Twitter_API_Keys"
@@ -45,28 +49,34 @@ class TweetimentFrame(tk.Frame):
 
         var = tk.StringVar()
        
-        if not os.path.isfile(self.ConfigFile):
-            var.set("Update required.")
-            
-            TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = var)
-            TwitterStreamStatusLabel.place(x = 320, y = 100, width = 200, height = 30)
-        else:
-            
+        if os.path.isfile(self.ConfigFile):
+
+            with open(self.ConfigFile, 'r') as f:
+                cfg = json.load(f)
+            try:        
+                updated = cfg['TwitterStreamLastUpdated']
+            except:
+                updated = None
                 
-            try:
-                with open('config.json', 'r') as f:
-                    self.config = json.load(f)
-                updated = self.config['TwitterStreamLastUpdated']
+            if updated:
                 var.set("Last updated on: " + updated)
-            except e:
-                var.set("Update Required")
                 
+                TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = var)
+                TwitterStreamStatusLabel.place(x = 320, y = 100, width = 300, height = 30)
+
+                TweetimentCloseButton = tk.Button(self.parent, text = "Update Twitter Stream", command = self.updateTwitterStream, bg="gray", fg="white")
+                TweetimentCloseButton.place(x = 100, y = 100, width = 200, height = 30)
+            
+        else:
+            var.set("Download Required")
+        
             TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = var)
             TwitterStreamStatusLabel.place(x = 320, y = 100, width = 200, height = 30)
 
-        TweetimentCloseButton = tk.Button(self.parent, text = "Update Twitter Stream", command = self.updateTwitterStream, bg="blue", fg="white")
-        TweetimentCloseButton.place(x = 100, y = 100, width = 200, height = 30)
-        
+            TweetimentCloseButton = tk.Button(self.parent, text = "Download Twitter Stream", command = self.updateTwitterStream, bg="blue", fg="white")
+            TweetimentCloseButton.place(x = 100, y = 100, width = 200, height = 30)
+
+
         TweetimentCloseButton = tk.Button(self.parent, text = "Exit", command = lambda: self.parent.destroy(), bg="blue", fg="white")
         TweetimentCloseButton.place(x = 100, y = 150, width = 70, height = 30)
 
@@ -112,6 +122,8 @@ class TweetimentFrame(tk.Frame):
             E2.place(x=250, y=300, width=300, height=30)
             E3.place(x=250, y=350, width=300, height=30)
             E4.place(x=250, y=400, width=300, height=30)
+
+            E1.focus()
 
             TwitterKeysWindow.update()
             self.parent.update()
@@ -176,6 +188,8 @@ class TweetimentFrame(tk.Frame):
                 E3.insert(0, twitter_keys[2])
                 E4.insert(0, twitter_keys[3])
 
+            E1.focus()
+            
             TwitterKeysWindow.update()
             self.parent.update()
             self.parent.update_idletasks() 
@@ -204,24 +218,86 @@ class TweetimentFrame(tk.Frame):
             with open( self.TwitterKeysFile, "w" ) as twitter_keys_file:
                 twitter_keys_file.write(E1_text + "|" + E2_text + "|" + E3_text + "|" + E4_text)
             self.twitterAuthOpenedFlag = False
+            self.twitterAuthCompletedFlag = True
+
+            if os.path.isfile(self.ConfigFile):
+                cfg = {}
+                with open('config.json', 'r') as f:
+                    cfg = json.load(f)
+                cfg['twitterAuthCompletedFlag'] = True
+                with open('config.json', 'w') as f:
+                    json.dump(cfg, f)
+
+            else:    
+                cfg = {}
+                cfg['twitterAuthCompletedFlag'] = True
+                with open('config.json', 'w') as f:
+                    json.dump(cfg, f)
+
             self.initUI()
             TwitterKeysWindow.destroy()
 
 
     def updateTwitterStream(self):
-
-        self.pb = ttk.Progressbar(self.parent, orient=tk.HORIZONTAL, mode='indeterminate', length = 200)
-        self.pb.pack(side = tk.BOTTOM, fill = tk.BOTH)
-        self.pb.start()
-        st = datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%Y %H:%M:%S')
-
-        self.config['TwitterStreamLastUpdated'] = st
         
-        with open('config.json', 'w') as f:
-            json.dump(self.config, f)
+        with open('config.json', 'r') as f:
+            cfg = json.load(f)
+                    
+        if cfg['twitterAuthCompletedFlag'] == True:
 
-        self.pb.stop()
-        self.pb.pack_forget()
+            print "twitterAuthCompletedFlag = True"
+            self.pb = ttk.Progressbar(self.parent, orient=tk.HORIZONTAL, mode='indeterminate', length = 200)
+            self.pb.pack(side = tk.BOTTOM, fill = tk.BOTH)
+            self.pb.start()
+
+            with open("Twitter_API_Keys", "r") as twitter_keys_file:
+                twitter_keys = twitter_keys_file.read().split("|")
+                print twitter_keys
+
+            api_key = twitter_keys[0]
+            api_secret = twitter_keys[1]
+            access_token_key = twitter_keys[2]
+            access_token_secret = twitter_keys[3]
+
+            _debug = 0
+
+            oauth_token    = oauth.Token(key=access_token_key, secret=access_token_secret)
+            oauth_consumer = oauth.Consumer(key=api_key, secret=api_secret)
+
+            signature_method_hmac_sha1 = oauth.SignatureMethod_HMAC_SHA1()
+
+            http_method = "GET"
+
+            http_handler  = urllib.HTTPHandler(debuglevel=_debug)
+            https_handler = urllib.HTTPSHandler(debuglevel=_debug)
+
+
+            
+            st = datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%Y %H:%M:%S')
+            #self.config['TwitterStreamLastUpdated'] = st
+
+
+            if os.path.isfile(self.ConfigFile):
+                cfg = {}
+                with open('config.json', 'r') as f:
+                    cfg = json.load(f)
+                cfg['TwitterStreamLastUpdated'] = st
+                with open('config.json', 'w') as f:
+                    json.dump(cfg, f)
+
+            else:    
+                cfg = {}
+                cfg['TwitterStreamLastUpdated'] = st
+                with open('config.json', 'w') as f:
+                    json.dump(cfg, f)
+            
+
+            self.pb.stop()
+            self.pb.pack_forget()
+            self.initUI()
+
+        else:
+            tkMessageBox.showerror("ERROR", "Twitter API credentials not filled or invalid credentials provided.", parent = self.parent)
             
         
     
