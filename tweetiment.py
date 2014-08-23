@@ -14,6 +14,7 @@ import time, datetime
 import json
 import oauth2 as oauth
 import urllib2 as urllib
+from threading import Thread
 
 class TweetimentFrame(tk.Frame):
     """
@@ -90,24 +91,17 @@ class TweetimentFrame(tk.Frame):
             global TwitterKeysWindow
             TwitterKeysWindow = tk.Toplevel(self)
             TwitterKeysWindow.minsize(600, 500)
-            TwitterKeysWindow.overrideredirect(True)
+            #TwitterKeysWindow.overrideredirect(True)
             TwitterKeysWindow.geometry("600x500+100+100")
             TwitterKeysWindow.title("Twitter API Authentication Details")
             TwitterKeysWindow.config(bd=5)
-            L0 = tk.Label(TwitterKeysWindow, justify = tk.LEFT, wraplength = 500, text="""Help:\n
-    1. Create a twitter account if you do not already have one.
-    2. Go to https://dev.twitter.com/apps and log in with your twitter credentials.
-    3. Click "Create New App"
-    4. Fill out the form and agree to the terms. Put in a dummy website if you don't have one you want to use.
-    5. On the next page, click the "API Keys" tab along the top, then scroll all the way down until you see the section "Your Access Token"
-    Click the button "Create My Access Token".
-    6. Copy the four values into the provided space. These values are your "API Key", your "API secret", your "Access token" and your "Access token secret". """)
+            L0 = tk.Label(TwitterKeysWindow, justify = tk.LEFT, wraplength = 500, text="""Help:\n\n1. Create a twitter account if you do not already have one.\n2. Go to https://dev.twitter.com/apps and log in with your twitter credentials.\n3. Click "Create New App"\n4. Fill out the form and agree to the terms. Put in a dummy website if you don't have one you want to use.\n5. On the next page, click the "API Keys" tab along the top, then scroll all the way down until you see the section "Your Access Token". Click the button "Create My Access Token" \n6. Copy the four values into the provided space. These values are your "API Key", your "API secret", your "Access token" and your "Access token secret". """)
 
             L1 = tk.Label(TwitterKeysWindow, text="api_key")
             L2 = tk.Label(TwitterKeysWindow, text="api_secret")
             L3 = tk.Label(TwitterKeysWindow, text="access_token_key")
             L4 = tk.Label(TwitterKeysWindow, text="access_token_secret")
-            L0.place(x=50, y=10, width=550, height=200)
+            L0.place(x=10, y=10, width=550, height=200)
             L1.place(x=50, y=250, width=150, height=30)
             L2.place(x=50, y=300, width=150, height=30)
             L3.place(x=50, y=350, width=150, height=30)
@@ -147,24 +141,17 @@ class TweetimentFrame(tk.Frame):
             global TwitterKeysWindow
             TwitterKeysWindow = tk.Toplevel(self)
             TwitterKeysWindow.minsize(600, 500)
-            TwitterKeysWindow.overrideredirect(True)
+            #TwitterKeysWindow.overrideredirect(True)
             TwitterKeysWindow.geometry("600x500+100+100")
             TwitterKeysWindow.title("Twitter API Authentication Details")
             TwitterKeysWindow.config(bd=5)
-            L0 = tk.Label(TwitterKeysWindow, justify = tk.LEFT, wraplength = 500, text="""Help:\n
-    1. Create a twitter account if you do not already have one.
-    2. Go to https://dev.twitter.com/apps and log in with your twitter credentials.
-    3. Click "Create New App"
-    4. Fill out the form and agree to the terms. Put in a dummy website if you don't have one you want to use.
-    5. On the next page, click the "API Keys" tab along the top, then scroll all the way down until you see the section "Your Access Token"
-    Click the button "Create My Access Token".
-    6. Copy the four values into the provided space. These values are your "API Key", your "API secret", your "Access token" and your "Access token secret". """)
+            L0 = tk.Label(TwitterKeysWindow, justify = tk.LEFT, wraplength = 500, text="""Help:\n\n1. Create a twitter account if you do not already have one.\n2. Go to https://dev.twitter.com/apps and log in with your twitter credentials.\n3. Click "Create New App"\n4. Fill out the form and agree to the terms. Put in a dummy website if you don't have one you want to use.\n5. On the next page, click the "API Keys" tab along the top, then scroll all the way down until you see the section "Your Access Token". Click the button "Create My Access Token" \n6. Copy the four values into the provided space. These values are your "API Key", your "API secret", your "Access token" and your "Access token secret". """)
 
             L1 = tk.Label(TwitterKeysWindow, text="api_key")
             L2 = tk.Label(TwitterKeysWindow, text="api_secret")
             L3 = tk.Label(TwitterKeysWindow, text="access_token_key")
             L4 = tk.Label(TwitterKeysWindow, text="access_token_secret")
-            L0.place(x=50, y=10, width=550, height=200)
+            L0.place(x=10, y=10, width=550, height=200)
             L1.place(x=50, y=250, width=150, height=30)
             L2.place(x=50, y=300, width=150, height=30)
             L3.place(x=50, y=350, width=150, height=30)
@@ -249,34 +236,73 @@ class TweetimentFrame(tk.Frame):
             self.pb = ttk.Progressbar(self.parent, orient=tk.HORIZONTAL, mode='indeterminate', length = 200)
             self.pb.pack(side = tk.BOTTOM, fill = tk.BOTH)
             self.pb.start()
+ 
+            def threadedTwitterRequest():
+                with open("Twitter_API_Keys", "r") as twitter_keys_file:
+                    twitter_keys = twitter_keys_file.read().split("|")
+                    print twitter_keys
 
-            with open("Twitter_API_Keys", "r") as twitter_keys_file:
-                twitter_keys = twitter_keys_file.read().split("|")
-                print twitter_keys
+                api_key = twitter_keys[0]
+                api_secret = twitter_keys[1]
+                access_token_key = twitter_keys[2]
+                access_token_secret = twitter_keys[3]
 
-            api_key = twitter_keys[0]
-            api_secret = twitter_keys[1]
-            access_token_key = twitter_keys[2]
-            access_token_secret = twitter_keys[3]
+                _debug = 0
 
-            _debug = 0
+                oauth_token    = oauth.Token(key=access_token_key, secret=access_token_secret)
+                oauth_consumer = oauth.Consumer(key=api_key, secret=api_secret)
 
-            oauth_token    = oauth.Token(key=access_token_key, secret=access_token_secret)
-            oauth_consumer = oauth.Consumer(key=api_key, secret=api_secret)
+                signature_method_hmac_sha1 = oauth.SignatureMethod_HMAC_SHA1()
 
-            signature_method_hmac_sha1 = oauth.SignatureMethod_HMAC_SHA1()
+                http_method = "GET"
 
-            http_method = "GET"
+                http_handler  = urllib.HTTPHandler(debuglevel=_debug)
+                https_handler = urllib.HTTPSHandler(debuglevel=_debug)
 
-            http_handler  = urllib.HTTPHandler(debuglevel=_debug)
-            https_handler = urllib.HTTPSHandler(debuglevel=_debug)
+                url = "https://stream.twitter.com/1/statuses/sample.json"
+                parameters = []
 
+                
+                req = oauth.Request.from_consumer_and_token(oauth_consumer,
+                                                             token=oauth_token,
+                                                             http_method=http_method,
+                                                             http_url=url, 
+                                                             parameters=parameters)
+
+                req.sign_request(signature_method_hmac_sha1, oauth_consumer, oauth_token)
+
+                headers = req.to_header()
+
+                if http_method == "POST":
+                    encoded_post_data = req.to_postdata()
+                else:
+                    encoded_post_data = None
+                    url = req.to_url()
+
+                opener = urllib.OpenerDirector()
+                opener.add_handler(http_handler)
+                opener.add_handler(https_handler)
+
+                response = opener.open(url, encoded_post_data)
+
+                for line in response:
+                    print line.strip()
+
+
+            t = Thread(target = threadedTwitterRequest)
+            t.daemon = True               
+            t.start()
+
+            run_time = 5 #* 60
+            sleep(run_time)
 
             
+            #t1 = threading.Thread(target = threadedTwitterRequest)
+            #t1.start()
+            #t1.join()
+            
+            
             st = datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%Y %H:%M:%S')
-            #self.config['TwitterStreamLastUpdated'] = st
-
-
             if os.path.isfile(self.ConfigFile):
                 cfg = {}
                 with open('config.json', 'r') as f:
@@ -284,20 +310,18 @@ class TweetimentFrame(tk.Frame):
                 cfg['TwitterStreamLastUpdated'] = st
                 with open('config.json', 'w') as f:
                     json.dump(cfg, f)
-
             else:    
                 cfg = {}
                 cfg['TwitterStreamLastUpdated'] = st
                 with open('config.json', 'w') as f:
                     json.dump(cfg, f)
             
-
-            self.pb.stop()
+            #self.pb.stop()
             self.pb.pack_forget()
             self.initUI()
 
         else:
-            tkMessageBox.showerror("ERROR", "Twitter API credentials not filled or invalid credentials provided.", parent = self.parent)
+            tkMessageBox.showerror("ERROR", "Twitter API credentials not filled.", parent = self.parent)
             
         
     
