@@ -22,14 +22,22 @@ class TweetimentFrame(tk.Frame):
         self.parent.title("Tweetiment")
         self.pack(fill=tk.BOTH, expand=1)
         if not os.path.isfile('Twitter_API_Keys'):
-            TwitterAuthButton = tk.Button(self.parent, text ="Set Twitter Credentials", command = self.setTwitterAuth, bg="blue", fg="white")
-            TwitterAuthButton.place(x=100,y=50,width=200, height=30)
+            TwitterAuthButton = tk.Button(self.parent, text = "Set Twitter Credentials", command = self.setTwitterAuth, bg="blue", fg="white")
+            TwitterAuthButton.place(x = 100, y = 50, width = 200, height = 30)
         else:
-            TwitterAuthButton = tk.Button(self.parent, text ="Update Twitter Credentials", command = self.updateTwitterAuth, bg="gray", fg="white")
-            TwitterAuthButton.place(x=100,y=50,width=200, height=30)
+            TwitterAuthButton = tk.Button(self.parent, text = "Update Twitter Credentials", command = self.updateTwitterAuth, bg="gray", fg="white")
+            TwitterAuthButton.place(x = 100, y = 50, width = 200, height = 30)
 
-        TweetimentCloseButton = tk.Button(self.parent, text ="Exit", command = lambda: self.parent.destroy(), bg="blue", fg="white")
-        TweetimentCloseButton.place(x=400,y=50,width=70, height=30)
+        var = tk.StringVar()
+        var.set("Update required.")
+        TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = var)
+        TwitterStreamStatusLabel.place(x = 320, y = 100, width = 100, height = 30)
+
+        TweetimentCloseButton = tk.Button(self.parent, text = "Update Twitter Stream", command = lambda: self.parent.destroy(), bg="blue", fg="white")
+        TweetimentCloseButton.place(x = 100, y = 100, width = 200, height = 30)
+        
+        TweetimentCloseButton = tk.Button(self.parent, text = "Exit", command = lambda: self.parent.destroy(), bg="blue", fg="white")
+        TweetimentCloseButton.place(x = 100, y = 150, width = 70, height = 30)
 
         
     def setTwitterAuth(self):
@@ -165,8 +173,7 @@ class TweetimentFrame(tk.Frame):
             with open("Twitter_API_Keys", "w") as twitter_keys_file:
                 twitter_keys_file.write(E1_text + "|" + E2_text + "|" + E3_text + "|" + E4_text)
             self.twitter_auth_opened = False
-            self.parent.update()
-            self.parent.update_idletasks()    
+            self.initUI()
             TwitterKeysWindow.destroy()
             
         
