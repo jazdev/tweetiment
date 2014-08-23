@@ -8,10 +8,24 @@ except ImportError:
 import os
 from ttk import Frame, Style
 import tkMessageBox
+import ConfigParser
+import time, datetime
+import json
 
 class TweetimentFrame(tk.Frame):
+    """
+
+    """
+
     count = 0
-    twitter_auth_opened = False
+    
+    twitterAuthOpenedFlag = False
+    twitterStreamUpdatedFlag = False
+    
+    TwitterKeysFile = "Twitter_API_Keys"
+    ConfigFile = "config.json"
+
+    config = {}
     
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)            
@@ -21,7 +35,7 @@ class TweetimentFrame(tk.Frame):
     def initUI(self):
         self.parent.title("Tweetiment")
         self.pack(fill=tk.BOTH, expand=1)
-        if not os.path.isfile('Twitter_API_Keys'):
+        if not os.path.isfile(self.TwitterKeysFile):
             TwitterAuthButton = tk.Button(self.parent, text = "Set Twitter Credentials", command = self.setTwitterAuth, bg="blue", fg="white")
             TwitterAuthButton.place(x = 100, y = 50, width = 200, height = 30)
         else:
@@ -29,11 +43,26 @@ class TweetimentFrame(tk.Frame):
             TwitterAuthButton.place(x = 100, y = 50, width = 200, height = 30)
 
         var = tk.StringVar()
-        var.set("Update required.")
-        TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = var)
-        TwitterStreamStatusLabel.place(x = 320, y = 100, width = 100, height = 30)
+       
 
-        TweetimentCloseButton = tk.Button(self.parent, text = "Update Twitter Stream", command = lambda: self.parent.destroy(), bg="blue", fg="white")
+        if not os.path.isfile(self.ConfigFile):
+            var.set("Update required.")
+            TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = var)
+            TwitterStreamStatusLabel.place(x = 320, y = 100, width = 200, height = 30)
+        else:
+            with open('config.json', 'r') as f:
+                self.config = json.load(f)
+                
+            try:
+                updated = self.config['TwitterStreamLastUpdated']
+                var.set("Last updated on: " + updated)
+            except e:
+                var.set("Update Required")
+                
+            TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = var)
+            TwitterStreamStatusLabel.place(x = 320, y = 100, width = 200, height = 30)
+
+        TweetimentCloseButton = tk.Button(self.parent, text = "Update Twitter Stream", command = self.updateTwitterStream(), bg="blue", fg="white")
         TweetimentCloseButton.place(x = 100, y = 100, width = 200, height = 30)
         
         TweetimentCloseButton = tk.Button(self.parent, text = "Exit", command = lambda: self.parent.destroy(), bg="blue", fg="white")
@@ -42,9 +71,9 @@ class TweetimentFrame(tk.Frame):
         
     def setTwitterAuth(self):
         self.count += 1
-        if self.twitter_auth_opened == False:
+        if self.twitterAuthOpenedFlag == False:
 
-            self.twitter_auth_opened = True
+            self.twitterAuthOpenedFlag = True
             
             global TwitterKeysWindow
             TwitterKeysWindow = tk.Toplevel(self)
@@ -97,9 +126,9 @@ class TweetimentFrame(tk.Frame):
 
     def updateTwitterAuth(self):
         self.count += 1
-        if self.twitter_auth_opened == False:
+        if self.twitterAuthOpenedFlag == False:
 
-            self.twitter_auth_opened = True
+            self.twitterAuthOpenedFlag = True
             
             global TwitterKeysWindow
             TwitterKeysWindow = tk.Toplevel(self)
@@ -170,11 +199,23 @@ class TweetimentFrame(tk.Frame):
             E2_text = E2.get()
             E3_text = E3.get()
             E4_text = E4.get()
-            with open("Twitter_API_Keys", "w") as twitter_keys_file:
+            with open( self.TwitterKeysFile, "w" ) as twitter_keys_file:
                 twitter_keys_file.write(E1_text + "|" + E2_text + "|" + E3_text + "|" + E4_text)
-            self.twitter_auth_opened = False
+            self.twitterAuthOpenedFlag = False
             self.initUI()
             TwitterKeysWindow.destroy()
+
+
+    def updateTwitterStream(self):
+
+        st = datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%Y %H:%M:%S')
+
+        self.config['TwitterStreamLastUpdated'] = st
+        
+        with open('config.json', 'w') as f:
+            json.dump(self.config, f)
+
+        self.initUI()    
             
         
     
