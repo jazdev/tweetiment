@@ -6,8 +6,6 @@ except ImportError:
     import tkinter as tk     ## Python 3.x 
 
 import os
-#from PIL import Image, ImageTk
-#from Tkinter import Tk, Label, BOTH, Button
 from ttk import Frame, Style
 import tkMessageBox
 
