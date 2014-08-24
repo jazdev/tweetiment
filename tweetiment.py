@@ -15,6 +15,7 @@ import json
 import oauth2 as oauth
 import urllib2 as urllib
 from threading import Thread
+from time import sleep
 
 class TweetimentFrame(tk.Frame):
     """
@@ -41,6 +42,8 @@ class TweetimentFrame(tk.Frame):
     def initUI(self):
         self.parent.title("Tweetiment")
         self.pack(fill=tk.BOTH, expand=1)
+
+        
         if not os.path.isfile(self.TwitterKeysFile):
             TwitterAuthButton = tk.Button(self.parent, text = "Set Twitter Credentials", command = self.setTwitterAuth, bg="blue", fg="white")
             TwitterAuthButton.place(x = 100, y = 50, width = 200, height = 30)
@@ -48,7 +51,8 @@ class TweetimentFrame(tk.Frame):
             TwitterAuthButton = tk.Button(self.parent, text = "Update Twitter Credentials", command = self.updateTwitterAuth, bg="gray", fg="white")
             TwitterAuthButton.place(x = 100, y = 50, width = 200, height = 30)
 
-        var = tk.StringVar()
+        
+        self.var = tk.StringVar()
        
         if os.path.isfile(self.ConfigFile):
 
@@ -60,19 +64,19 @@ class TweetimentFrame(tk.Frame):
                 updated = None
                 
             if updated:
-                var.set("Last updated on: " + updated)
+                self.var.set("Stream last updated on: " + updated)
                 
-                TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = var)
-                TwitterStreamStatusLabel.place(x = 320, y = 100, width = 300, height = 30)
+                TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = self.var, justify = tk.LEFT, wraplength = 400)
+                TwitterStreamStatusLabel.place(x = 320, y = 100, width = 400, height = 30)
 
                 TweetimentCloseButton = tk.Button(self.parent, text = "Update Twitter Stream", command = self.updateTwitterStream, bg="gray", fg="white")
                 TweetimentCloseButton.place(x = 100, y = 100, width = 200, height = 30)
             
         else:
-            var.set("Download Required")
+            self.var.set("Download Required")
         
-            TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = var)
-            TwitterStreamStatusLabel.place(x = 320, y = 100, width = 200, height = 30)
+            TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = self.var, justify = tk.LEFT, wraplength = 400)
+            TwitterStreamStatusLabel.place(x = 320, y = 100, width = 400, height = 30)
 
             TweetimentCloseButton = tk.Button(self.parent, text = "Download Twitter Stream", command = self.updateTwitterStream, bg="blue", fg="white")
             TweetimentCloseButton.place(x = 100, y = 100, width = 200, height = 30)
@@ -91,7 +95,6 @@ class TweetimentFrame(tk.Frame):
             global TwitterKeysWindow
             TwitterKeysWindow = tk.Toplevel(self)
             TwitterKeysWindow.minsize(600, 500)
-            #TwitterKeysWindow.overrideredirect(True)
             TwitterKeysWindow.geometry("600x500+100+100")
             TwitterKeysWindow.title("Twitter API Authentication Details")
             TwitterKeysWindow.config(bd=5)
@@ -204,6 +207,7 @@ class TweetimentFrame(tk.Frame):
             E4_text = E4.get()
             with open( self.TwitterKeysFile, "w" ) as twitter_keys_file:
                 twitter_keys_file.write(E1_text + "|" + E2_text + "|" + E3_text + "|" + E4_text)
+                
             self.twitterAuthOpenedFlag = False
             self.twitterAuthCompletedFlag = True
 
@@ -212,14 +216,20 @@ class TweetimentFrame(tk.Frame):
                 with open('config.json', 'r') as f:
                     cfg = json.load(f)
                 cfg['twitterAuthCompletedFlag'] = True
+                st = datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%Y %H:%M:%S')
+                cfg['twitterAuthLastUpdated'] = st
                 with open('config.json', 'w') as f:
                     json.dump(cfg, f)
 
             else:    
                 cfg = {}
                 cfg['twitterAuthCompletedFlag'] = True
+                st = datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%Y %H:%M:%S')
+                cfg['twitterAuthLastUpdated'] = st
                 with open('config.json', 'w') as f:
                     json.dump(cfg, f)
+
+
 
             self.initUI()
             TwitterKeysWindow.destroy()
@@ -236,71 +246,11 @@ class TweetimentFrame(tk.Frame):
             self.pb = ttk.Progressbar(self.parent, orient=tk.HORIZONTAL, mode='indeterminate', length = 200)
             self.pb.pack(side = tk.BOTTOM, fill = tk.BOTH)
             self.pb.start()
- 
-            def threadedTwitterRequest():
-                with open("Twitter_API_Keys", "r") as twitter_keys_file:
-                    twitter_keys = twitter_keys_file.read().split("|")
-                    print twitter_keys
 
-                api_key = twitter_keys[0]
-                api_secret = twitter_keys[1]
-                access_token_key = twitter_keys[2]
-                access_token_secret = twitter_keys[3]
-
-                _debug = 0
-
-                oauth_token    = oauth.Token(key=access_token_key, secret=access_token_secret)
-                oauth_consumer = oauth.Consumer(key=api_key, secret=api_secret)
-
-                signature_method_hmac_sha1 = oauth.SignatureMethod_HMAC_SHA1()
-
-                http_method = "GET"
-
-                http_handler  = urllib.HTTPHandler(debuglevel=_debug)
-                https_handler = urllib.HTTPSHandler(debuglevel=_debug)
-
-                url = "https://stream.twitter.com/1/statuses/sample.json"
-                parameters = []
-
-                
-                req = oauth.Request.from_consumer_and_token(oauth_consumer,
-                                                             token=oauth_token,
-                                                             http_method=http_method,
-                                                             http_url=url, 
-                                                             parameters=parameters)
-
-                req.sign_request(signature_method_hmac_sha1, oauth_consumer, oauth_token)
-
-                headers = req.to_header()
-
-                if http_method == "POST":
-                    encoded_post_data = req.to_postdata()
-                else:
-                    encoded_post_data = None
-                    url = req.to_url()
-
-                opener = urllib.OpenerDirector()
-                opener.add_handler(http_handler)
-                opener.add_handler(https_handler)
-
-                response = opener.open(url, encoded_post_data)
-
-                for line in response:
-                    print line.strip()
-
-
-            t = Thread(target = threadedTwitterRequest)
-            t.daemon = True               
+            self.var.set("Updating stream ... This operation takes 4-5 minutes to complete.")
+            
+            t= Thread(target=self.threadedTwitterRequest)
             t.start()
-
-            run_time = 5 #* 60
-            sleep(run_time)
-
-            
-            #t1 = threading.Thread(target = threadedTwitterRequest)
-            #t1.start()
-            #t1.join()
-            
             
             st = datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%Y %H:%M:%S')
             if os.path.isfile(self.ConfigFile):
@@ -315,14 +265,78 @@ class TweetimentFrame(tk.Frame):
                 cfg['TwitterStreamLastUpdated'] = st
                 with open('config.json', 'w') as f:
                     json.dump(cfg, f)
-            
-            #self.pb.stop()
-            self.pb.pack_forget()
+
             self.initUI()
 
         else:
             tkMessageBox.showerror("ERROR", "Twitter API credentials not filled.", parent = self.parent)
             
+
+
+    def threadedTwitterRequest(self):
+        start_time = time.time()
+        
+        with open("Twitter_API_Keys", "r") as twitter_keys_file:
+            twitter_keys = twitter_keys_file.read().split("|")
+            print twitter_keys
+
+        api_key = twitter_keys[0]
+        api_secret = twitter_keys[1]
+        access_token_key = twitter_keys[2]
+        access_token_secret = twitter_keys[3]
+
+        _debug = 0
+
+        oauth_token    = oauth.Token(key=access_token_key, secret=access_token_secret)
+        oauth_consumer = oauth.Consumer(key=api_key, secret=api_secret)
+
+        signature_method_hmac_sha1 = oauth.SignatureMethod_HMAC_SHA1()
+
+        http_method = "GET"
+
+        http_handler  = urllib.HTTPHandler(debuglevel=_debug)
+        https_handler = urllib.HTTPSHandler(debuglevel=_debug)
+
+        url = "https://stream.twitter.com/1/statuses/sample.json"
+        parameters = []
+
+        
+        req = oauth.Request.from_consumer_and_token(oauth_consumer,
+                                                     token=oauth_token,
+                                                     http_method=http_method,
+                                                     http_url=url, 
+                                                     parameters=parameters)
+
+        req.sign_request(signature_method_hmac_sha1, oauth_consumer, oauth_token)
+
+        headers = req.to_header()
+
+        if http_method == "POST":
+            encoded_post_data = req.to_postdata()
+        else:
+            encoded_post_data = None
+            url = req.to_url()
+
+        opener = urllib.OpenerDirector()
+        opener.add_handler(http_handler)
+        opener.add_handler(https_handler)        
+        response = opener.open(url, encoded_post_data)
+
+        if os.path.isfile("TwitterStream.txt"):
+            os.remove("TwitterStream.txt")
+        
+        for line in response:
+            self.var.set("Updating... This process takes 4-5 minutes to complete.")
+            
+            print "abs(time.time() - start_time", abs(time.time() - start_time)
+            
+            if abs(time.time() - start_time) >= 20:
+                self.pb.pack_forget()
+                self.var.set("Update complete.")
+                return
+            
+            with open("TwitterStream.txt", "a") as twitter_stream_file:
+                twitter_stream_file.write(line.strip()  + os.linesep)
         
     
 def main():
