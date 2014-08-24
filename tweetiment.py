@@ -6,6 +6,7 @@ except ImportError:
     import tkinter as tk     ## Python 3.x 
 
 import os
+import sys
 import ttk
 from ttk import Frame, Style
 import tkMessageBox
@@ -16,6 +17,8 @@ import oauth2 as oauth
 import urllib2 as urllib
 from threading import Thread
 from time import sleep
+from tkintertable.Tables import TableCanvas
+from tkintertable.TableModels import TableModel
 
 class TweetimentFrame(tk.Frame):
     """
@@ -31,6 +34,8 @@ class TweetimentFrame(tk.Frame):
     
     TwitterKeysFile = "Twitter_API_Keys"
     ConfigFile = "config.json"
+    AFINNFile = "word_scores/AFINN-111.txt"
+    TwitterStreamFile = "TwitterStream.txt"
 
     config = {}
     
@@ -82,8 +87,11 @@ class TweetimentFrame(tk.Frame):
             TweetimentCloseButton.place(x = 100, y = 100, width = 200, height = 30)
 
 
+        TweetimentCloseButton = tk.Button(self.parent, text = "Run Tweet Sentiment", command = self.findTweetSentiment, bg="blue", fg="white")
+        TweetimentCloseButton.place(x = 100, y = 150, width = 200, height = 30)
+        
         TweetimentCloseButton = tk.Button(self.parent, text = "Exit", command = lambda: self.parent.destroy(), bg="blue", fg="white")
-        TweetimentCloseButton.place(x = 100, y = 150, width = 70, height = 30)
+        TweetimentCloseButton.place(x = 100, y = 200, width = 70, height = 30)
 
         
     def setTwitterAuth(self):
@@ -322,8 +330,8 @@ class TweetimentFrame(tk.Frame):
         opener.add_handler(https_handler)        
         response = opener.open(url, encoded_post_data)
 
-        if os.path.isfile("TwitterStream.txt"):
-            os.remove("TwitterStream.txt")
+        if os.path.isfile(self.TwitterStreamFile):
+            os.remove(self.TwitterStreamFile)
         
         for line in response:
             self.var.set("Updating... This process takes 4-5 minutes to complete.")
@@ -335,9 +343,38 @@ class TweetimentFrame(tk.Frame):
                 self.var.set("Update complete.")
                 return
             
-            with open("TwitterStream.txt", "a") as twitter_stream_file:
+            with open(self.TwitterStreamFile, "a") as twitter_stream_file:
                 twitter_stream_file.write(line.strip()  + os.linesep)
-        
+
+    def findTweetSentiment(self):
+        afinnfile = open(self.AFINNFile)
+        scores = {} 
+        for line in afinnfile:
+                term, score  = line.split("\t")  
+                scores[term] = int(score)  
+
+        #print scores.items() 
+
+        outfile = open(self.TwitterStreamFile)
+        for line in outfile:
+                json_obj = json.loads(line)
+                sentiment = 0
+                try:            
+                    text = json_obj['text'].decode('utf-8')
+                    #print text
+                    text_list = text.split(' ')
+                    for char in text_list:
+                        if char in scores:
+                                sentiment += scores[char]
+
+                    if sentiment != 0:
+                        print text + "   " + str(sentiment) + "\n\n"            
+
+                except:
+                    #print "passed"
+                    pass
+                
+                
     
 def main():
     global root
