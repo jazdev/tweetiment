@@ -28,6 +28,7 @@ class TweetimentFrame(tk.Frame):
     count = 0
     
     twitterAuthOpenedFlag = False
+    tweetSentimentOpenedFlag = False
     twitterAuthCompletedFlag = False
     
     twitterStreamUpdatedFlag = False
@@ -347,32 +348,68 @@ class TweetimentFrame(tk.Frame):
                 twitter_stream_file.write(line.strip()  + os.linesep)
 
     def findTweetSentiment(self):
-        afinnfile = open(self.AFINNFile)
-        scores = {} 
-        for line in afinnfile:
-                term, score  = line.split("\t")  
-                scores[term] = int(score)  
 
-        #print scores.items() 
+        self.count += 1
+        if self.tweetSentimentOpenedFlag == False:
 
-        outfile = open(self.TwitterStreamFile)
-        for line in outfile:
-                json_obj = json.loads(line)
-                sentiment = 0
-                try:            
-                    text = json_obj['text'].decode('utf-8')
-                    #print text
-                    text_list = text.split(' ')
-                    for char in text_list:
-                        if char in scores:
-                                sentiment += scores[char]
+            self.tweetSentimentOpenedFlag = True
 
-                    if sentiment != 0:
-                        print text + "   " + str(sentiment) + "\n\n"            
+            global TweetSentimentWindow
+            
+            def toggleFlag():
+                self.tweetSentimentOpenedFlag = False
+                TweetSentimentWindow.destroy()
 
-                except:
-                    #print "passed"
-                    pass
+                
+            
+            TweetSentimentWindow = tk.Toplevel(self)
+            TweetSentimentWindow.minsize(600, 500)
+            #TwitterKeysWindow.overrideredirect(True)
+            TweetSentimentWindow.geometry("600x500+100+100")
+            TweetSentimentWindow.title("Tweet Sentiments")
+            TweetSentimentWindow.config(bd=5)
+
+            TweetSentimentWindow.protocol("WM_DELETE_WINDOW", toggleFlag)
+
+            model = TableModel()
+            table = TableCanvas(TweetSentimentWindow, model=model)
+            table.createTableFrame()
+
+            tableData = {'rec1': {'col1': 99.88, 'col2': 108.79, 'label': 'rec1'},
+                         'rec2': {'col1': 99.88, 'col2': 108.79, 'label': 'rec2'}
+                        }
+
+            model.importDict(tableData) 
+            table.redrawTable()
+
+            afinnfile = open(self.AFINNFile)
+            scores = {} 
+            for line in afinnfile:
+                    term, score  = line.split("\t")  
+                    scores[term] = int(score)  
+
+            #print scores.items() 
+
+            outfile = open(self.TwitterStreamFile)
+            for line in outfile:
+                    json_obj = json.loads(line)
+                    sentiment = 0
+                    try:            
+                        text = json_obj['text'].decode('utf-8')
+                        #print text
+                        text_list = text.split(' ')
+                        for char in text_list:
+                            if char in scores:
+                                    sentiment += scores[char]
+
+                        if sentiment != 0:
+                            print text + "   " + str(sentiment) + "\n\n"            
+
+                    except:
+                        #print "passed"
+                        pass
+
+                    
                 
                 
     
