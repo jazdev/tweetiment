@@ -8,6 +8,7 @@ except ImportError:
 import os
 import sys
 import ttk
+import uuid
 from ttk import Frame, Style
 import tkMessageBox
 import ConfigParser
@@ -365,23 +366,19 @@ class TweetimentFrame(tk.Frame):
             TweetSentimentWindow = tk.Toplevel(self)
             TweetSentimentWindow.minsize(600, 500)
             #TwitterKeysWindow.overrideredirect(True)
-            TweetSentimentWindow.geometry("600x500+100+100")
-            TweetSentimentWindow.title("Tweet Sentiments")
+            TweetSentimentWindow.geometry("1000x500+100+100")
+            TweetSentimentWindow.title("Tweet Sentiments (Zero values omitted)")
             TweetSentimentWindow.config(bd=5)
 
             TweetSentimentWindow.protocol("WM_DELETE_WINDOW", toggleFlag)
 
             model = TableModel()
-            table = TableCanvas(TweetSentimentWindow, model=model)
+            table = TableCanvas(TweetSentimentWindow, model=model,
+                                 editable=False)
             table.createTableFrame()
 
-            tableData = {'rec1': {'col1': 99.88, 'col2': 108.79, 'label': 'rec1'},
-                         'rec2': {'col1': 99.88, 'col2': 108.79, 'label': 'rec2'}
-                        }
-
-            model.importDict(tableData) 
-            table.redrawTable()
-
+            tableData = {}
+            
             afinnfile = open(self.AFINNFile)
             scores = {} 
             for line in afinnfile:
@@ -403,12 +400,18 @@ class TweetimentFrame(tk.Frame):
                                     sentiment += scores[char]
 
                         if sentiment != 0:
-                            print text + "   " + str(sentiment) + "\n\n"            
+                            #print text + "   " + str(sentiment) + "\n\n"
+                            tableData[uuid.uuid4()] = {'Tweet': text, 'Score': str(sentiment)}
 
                     except:
                         #print "passed"
                         pass
 
+            model.importDict(tableData)
+            #table.adjustColumnWidths()
+            table.resizeColumn(0, 850)
+            table.resizeColumn(1, 50)
+            table.redrawTable()
                     
                 
                 
