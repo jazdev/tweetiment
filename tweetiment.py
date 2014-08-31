@@ -394,7 +394,7 @@ class TweetimentFrame(tk.Frame):
                     sentiment = 0
                     try:            
                         text = json_obj['text'].decode('utf-8')
-                        text = ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)"," ",text).split())
+                        text = ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)","",text).split())
                         text = re.sub(r'^https?:\/\/.*[\r\n]*', '', text, flags=re.MULTILINE)
                         text = re.sub(r'RT', '', text, flags=re.MULTILINE)
                         
@@ -416,6 +416,7 @@ class TweetimentFrame(tk.Frame):
             #table.adjustColumnWidths()
             table.resizeColumn(0, 850)
             table.resizeColumn(1, 50)
+            table.sortTable(columnName='Score')
             table.redrawTable()
                     
                 
