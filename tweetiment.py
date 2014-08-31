@@ -77,8 +77,8 @@ class TweetimentFrame(tk.Frame):
                 TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = self.var, justify = tk.LEFT, wraplength = 400)
                 TwitterStreamStatusLabel.place(x = 320, y = 100, width = 400, height = 30)
 
-                TweetimentCloseButton = tk.Button(self.parent, text = "Update Twitter Stream", command = self.updateTwitterStream, bg="gray", fg="white")
-                TweetimentCloseButton.place(x = 100, y = 100, width = 200, height = 30)
+                UpdateTwitterStreamButton = tk.Button(self.parent, text = "Update Twitter Stream", command = self.updateTwitterStream, bg="gray", fg="white")
+                UpdateTwitterStreamButton.place(x = 100, y = 100, width = 200, height = 30)
             
         else:
             self.var.set("Download Required")
@@ -86,12 +86,16 @@ class TweetimentFrame(tk.Frame):
             TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = self.var, justify = tk.LEFT, wraplength = 400)
             TwitterStreamStatusLabel.place(x = 320, y = 100, width = 400, height = 30)
 
-            TweetimentCloseButton = tk.Button(self.parent, text = "Download Twitter Stream", command = self.updateTwitterStream, bg="blue", fg="white")
-            TweetimentCloseButton.place(x = 100, y = 100, width = 200, height = 30)
+            DownloadTwitterStreamButton = tk.Button(self.parent, text = "Download Twitter Stream", command = self.updateTwitterStream, bg="blue", fg="white")
+            DownloadTwitterStreamButton.place(x = 100, y = 100, width = 200, height = 30)
 
-
-        TweetimentCloseButton = tk.Button(self.parent, text = "Run Tweet Sentiment", command = self.findTweetSentiment, bg="blue", fg="white")
-        TweetimentCloseButton.place(x = 100, y = 150, width = 200, height = 30)
+        global TweetSentimentTermEntry
+        TweetSentimentTermEntry = tk.Entry(self.parent, bd =5)
+        TweetSentimentTermEntry.place(x = 400, y = 150, width = 200, height = 30)
+        TweetSentimentTermEntry.focus()
+        
+        RunTweetSentimentButton = tk.Button(self.parent, text = "Run Tweet Sentiment", command = self.findTweetSentiment, bg="blue", fg="white")
+        RunTweetSentimentButton.place(x = 100, y = 150, width = 200, height = 30)
         
         TweetimentCloseButton = tk.Button(self.parent, text = "Exit", command = lambda: self.parent.destroy(), bg="blue", fg="white")
         TweetimentCloseButton.place(x = 100, y = 200, width = 70, height = 30)
@@ -286,6 +290,11 @@ class TweetimentFrame(tk.Frame):
 
     def threadedTwitterRequest(self):
         start_time = time.time()
+
+        search_term = TweetSentimentTermEntry.get()
+        if search_term == "":
+            search_term = "sample"
+        print search_term
         
         with open("Twitter_API_Keys", "r") as twitter_keys_file:
             twitter_keys = twitter_keys_file.read().split("|")
@@ -296,59 +305,67 @@ class TweetimentFrame(tk.Frame):
         access_token_key = twitter_keys[2]
         access_token_secret = twitter_keys[3]
 
-        _debug = 0
+        try:
+            _debug = 0
 
-        oauth_token    = oauth.Token(key=access_token_key, secret=access_token_secret)
-        oauth_consumer = oauth.Consumer(key=api_key, secret=api_secret)
+            oauth_token    = oauth.Token(key=access_token_key, secret=access_token_secret)
+            oauth_consumer = oauth.Consumer(key=api_key, secret=api_secret)
 
-        signature_method_hmac_sha1 = oauth.SignatureMethod_HMAC_SHA1()
+            signature_method_hmac_sha1 = oauth.SignatureMethod_HMAC_SHA1()
 
-        http_method = "GET"
+            http_method = "GET"
 
-        http_handler  = urllib.HTTPHandler(debuglevel=_debug)
-        https_handler = urllib.HTTPSHandler(debuglevel=_debug)
+            http_handler  = urllib.HTTPHandler(debuglevel=_debug)
+            https_handler = urllib.HTTPSHandler(debuglevel=_debug)
 
-        url = "https://stream.twitter.com/1/statuses/sample.json"
-        parameters = []
-
-        
-        req = oauth.Request.from_consumer_and_token(oauth_consumer,
-                                                     token=oauth_token,
-                                                     http_method=http_method,
-                                                     http_url=url, 
-                                                     parameters=parameters)
-
-        req.sign_request(signature_method_hmac_sha1, oauth_consumer, oauth_token)
-
-        headers = req.to_header()
-
-        if http_method == "POST":
-            encoded_post_data = req.to_postdata()
-        else:
-            encoded_post_data = None
-            url = req.to_url()
-
-        opener = urllib.OpenerDirector()
-        opener.add_handler(http_handler)
-        opener.add_handler(https_handler)        
-        response = opener.open(url, encoded_post_data)
-
-        if os.path.isfile(self.TwitterStreamFile):
-            os.remove(self.TwitterStreamFile)
-        
-        for line in response:
-            self.var.set("Updating... This process takes 4-5 minutes to complete.")
+            url = "https://api.twitter.com/1.1/search/tweets.json?q="
+            url += search_term.strip().split()[0]
+            print url
             
-            print "abs(time.time() - start_time", abs(time.time() - start_time)
-            
-            if abs(time.time() - start_time) >= 20:
-                self.pb.pack_forget()
-                self.var.set("Update complete.")
-                return
-            
-            with open(self.TwitterStreamFile, "a") as twitter_stream_file:
-                twitter_stream_file.write(line.strip()  + os.linesep)
+            parameters = []
 
+            
+            req = oauth.Request.from_consumer_and_token(oauth_consumer,
+                                                         token=oauth_token,
+                                                         http_method=http_method,
+                                                         http_url=url, 
+                                                         parameters=parameters)
+
+            req.sign_request(signature_method_hmac_sha1, oauth_consumer, oauth_token)
+
+            headers = req.to_header()
+
+            if http_method == "POST":
+                encoded_post_data = req.to_postdata()
+            else:
+                encoded_post_data = None
+                url = req.to_url()
+
+            opener = urllib.OpenerDirector()
+            opener.add_handler(http_handler)
+            opener.add_handler(https_handler)        
+            response = opener.open(url, encoded_post_data)
+            if os.path.isfile(self.TwitterStreamFile):
+                os.remove(self.TwitterStreamFile)
+            
+            for line in response:
+                print line
+                self.var.set("Updating... This process takes 4-5 minutes to complete.")
+                
+                print "abs(time.time() - start_time)", abs(time.time() - start_time)
+                
+                if abs(time.time() - start_time) >= 20:
+                    self.pb.pack_forget()
+                    self.var.set("Update complete.")
+                    return
+                
+                with open(self.TwitterStreamFile, "a") as twitter_stream_file:
+                    twitter_stream_file.write(line.strip()  + os.linesep)
+        except:
+            print "EXCEPTION"
+
+
+            
     def findTweetSentiment(self):
 
         self.count += 1
@@ -388,6 +405,9 @@ class TweetimentFrame(tk.Frame):
 
             #print scores.items() 
 
+            positive = 0.0
+            negative = 0.0
+            
             outfile = open(self.TwitterStreamFile)
             for line in outfile:
                     json_obj = json.loads(line)
@@ -405,19 +425,32 @@ class TweetimentFrame(tk.Frame):
                                     sentiment += scores[char]
 
                         if sentiment != 0:
-                            #print text + "   " + str(sentiment) + "\n\n"
                             tableData[uuid.uuid4()] = {'Tweet': text, 'Score': str(sentiment)}
+                            if sentiment > 0:
+                                positive += 1
+                            elif sentiment < 0:
+                                negative += 1
+                            #print text + "   " + str(sentiment) + "\n\n"
+                            
 
                     except:
                         #print "passed"
                         pass
 
+            ratio = float(positive) / float(negative)
             model.importDict(tableData)
             #table.adjustColumnWidths()
             table.resizeColumn(0, 850)
             table.resizeColumn(1, 50)
             table.sortTable(columnName='Score')
             table.redrawTable()
+
+            if positive > negative:
+                extra = "The overall sentiment is POSITIVE."
+            else:    
+                extra = "The overall sentiment is NEGATIVE."
+            
+            tkMessageBox.showinfo("Score Ratio", "The ratio of positive vs. negative tweets is " + str(ratio) + ". " + extra, parent = TweetSentimentWindow)
                     
                 
                 
