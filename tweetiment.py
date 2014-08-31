@@ -6,6 +6,7 @@ except ImportError:
     import tkinter as tk     ## Python 3.x 
 
 import os
+import re
 import sys
 import ttk
 import uuid
@@ -393,6 +394,10 @@ class TweetimentFrame(tk.Frame):
                     sentiment = 0
                     try:            
                         text = json_obj['text'].decode('utf-8')
+                        text = ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)"," ",text).split())
+                        text = re.sub(r'^https?:\/\/.*[\r\n]*', '', text, flags=re.MULTILINE)
+                        text = re.sub(r'RT', '', text, flags=re.MULTILINE)
+                        
                         #print text
                         text_list = text.split(' ')
                         for char in text_list:
