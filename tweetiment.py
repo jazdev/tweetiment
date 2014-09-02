@@ -89,10 +89,10 @@ class TweetimentFrame(tk.Frame):
             DownloadTwitterStreamButton = tk.Button(self.parent, text = "Download Twitter Stream", command = self.updateTwitterStream, bg="blue", fg="white")
             DownloadTwitterStreamButton.place(x = 100, y = 100, width = 200, height = 30)
 
-        global TweetSentimentTermEntry
-        TweetSentimentTermEntry = tk.Entry(self.parent, bd =5)
-        TweetSentimentTermEntry.place(x = 400, y = 150, width = 200, height = 30)
-        TweetSentimentTermEntry.focus()
+##        global TweetSentimentTermEntry
+##        TweetSentimentTermEntry = tk.Entry(self.parent, bd =5)
+##        TweetSentimentTermEntry.place(x = 400, y = 150, width = 200, height = 30)
+##        TweetSentimentTermEntry.focus()
         
         RunTweetSentimentButton = tk.Button(self.parent, text = "Run Tweet Sentiment", command = self.findTweetSentiment, bg="blue", fg="white")
         RunTweetSentimentButton.place(x = 100, y = 150, width = 200, height = 30)
@@ -291,10 +291,8 @@ class TweetimentFrame(tk.Frame):
     def threadedTwitterRequest(self):
         start_time = time.time()
 
-        search_term = TweetSentimentTermEntry.get()
-        if search_term == "":
-            search_term = "sample"
-        print search_term
+##        search_term = TweetSentimentTermEntry.get()
+        
         
         with open("Twitter_API_Keys", "r") as twitter_keys_file:
             twitter_keys = twitter_keys_file.read().split("|")
@@ -318,8 +316,15 @@ class TweetimentFrame(tk.Frame):
             http_handler  = urllib.HTTPHandler(debuglevel=_debug)
             https_handler = urllib.HTTPSHandler(debuglevel=_debug)
 
-            url = "https://api.twitter.com/1.1/search/tweets.json?q="
-            url += search_term.strip().split()[0]
+
+##            if search_term == "":
+##                url = "https://stream.twitter.com/1/statuses/sample.json"
+##            else:
+##                url = "https://api.twitter.com/1.1/search/tweets.json?q="
+##                url += search_term.strip().split()[0]
+##            print search_term
+
+            url = "https://stream.twitter.com/1/statuses/sample.json"    
             print url
             
             parameters = []
@@ -343,13 +348,14 @@ class TweetimentFrame(tk.Frame):
 
             opener = urllib.OpenerDirector()
             opener.add_handler(http_handler)
-            opener.add_handler(https_handler)        
-            response = opener.open(url, encoded_post_data)
+            opener.add_handler(https_handler)
             if os.path.isfile(self.TwitterStreamFile):
                 os.remove(self.TwitterStreamFile)
+            response = opener.open(url, encoded_post_data)
+            
             
             for line in response:
-                print line
+                #print line
                 self.var.set("Updating... This process takes 4-5 minutes to complete.")
                 
                 print "abs(time.time() - start_time)", abs(time.time() - start_time)
@@ -436,8 +442,8 @@ class TweetimentFrame(tk.Frame):
                     except:
                         #print "passed"
                         pass
-
-            ratio = float(positive) / float(negative)
+            if positive > 0 and negative > 0:
+                ratio = float(positive) / float(negative)
             model.importDict(tableData)
             #table.adjustColumnWidths()
             table.resizeColumn(0, 850)
