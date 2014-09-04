@@ -31,6 +31,7 @@ class TweetimentFrame(tk.Frame):
     
     twitterAuthOpenedFlag = False
     tweetSentimentOpenedFlag = False
+    termFrequenciesOpenedFlag = False
     twitterAuthCompletedFlag = False
     
     twitterStreamUpdatedFlag = False
@@ -96,9 +97,12 @@ class TweetimentFrame(tk.Frame):
         
         RunTweetSentimentButton = tk.Button(self.parent, text = "Run Tweet Sentiment", command = self.findTweetSentiment, bg="blue", fg="white")
         RunTweetSentimentButton.place(x = 100, y = 150, width = 200, height = 30)
+
+        TermFrequencyButton = tk.Button(self.parent, text = "Term Frequencies", command = self.findTermFrequencies, bg="blue", fg="white")
+        TermFrequencyButton.place(x = 100, y = 200, width = 200, height = 30)
         
         TweetimentCloseButton = tk.Button(self.parent, text = "Exit", command = lambda: self.parent.destroy(), bg="blue", fg="white")
-        TweetimentCloseButton.place(x = 100, y = 200, width = 70, height = 30)
+        TweetimentCloseButton.place(x = 100, y = 250, width = 70, height = 30)
 
         
     def setTwitterAuth(self):
@@ -443,7 +447,8 @@ class TweetimentFrame(tk.Frame):
                         #print "passed"
                         pass
             if positive > 0 and negative > 0:
-                ratio = float(positive) / float(negative)
+                ratio = round(float(positive) / float(negative), 2)
+                
             model.importDict(tableData)
             #table.adjustColumnWidths()
             table.resizeColumn(0, 850)
@@ -457,8 +462,72 @@ class TweetimentFrame(tk.Frame):
                 extra = "The overall sentiment is NEGATIVE."
             
             tkMessageBox.showinfo("Score Ratio", "The ratio of positive vs. negative tweets is " + str(ratio) + ". " + extra, parent = TweetSentimentWindow)
+
                     
+    def findTermFrequencies(self):
+        self.count += 1
+        if self.termFrequenciesOpenedFlag == False:
+            self.termFrequenciesOpenedFlag = True
+            global TermFrequenciesWindow
+
+            def toggleFlag():
+                self.termFrequenciesOpenedFlag = False
+                TermFrequenciesWindow.destroy()
                 
+            TermFrequenciesWindow = tk.Toplevel(self)
+            TermFrequenciesWindow.minsize(500, 500)
+            #TwitterKeysWindow.overrideredirect(True)
+            TermFrequenciesWindow.geometry("500x500+100+100")
+            TermFrequenciesWindow.title("Term Frequencies (only > 0.5%)")
+            TermFrequenciesWindow.config(bd=5)
+
+            TermFrequenciesWindow.protocol("WM_DELETE_WINDOW", toggleFlag)
+
+            model = TableModel()
+            table = TableCanvas(TermFrequenciesWindow, model=model,
+                                 editable=False)
+            table.createTableFrame()
+
+            tableData = {}
+            
+            freqs = {}
+            total = 0
+            outfile = open(self.TwitterStreamFile)
+            for line in outfile:
+                json_obj = json.loads(line)
+                try:            
+                    text = json_obj['text'].decode('utf-8')
+                    text = ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)","",text).split())
+                    text = re.sub(r'^https?:\/\/.*[\r\n]*', '', text, flags=re.MULTILINE)
+                    text = re.sub(r'RT', '', text, flags=re.MULTILINE)
+                    #print text
+                    text_list = text.split(' ')
+                    for char in text_list:
+                        if char.isalnum():
+                            if char not in freqs:
+                                freqs[char] = 1
+                            else:
+                                freqs[char] += 1
+                            total += 1  
+
+                except:
+                    #print "passed"
+                    pass
+                    
+            for key in freqs.keys():
+                if freqs[key]/float(total) > 0.005:
+                    tableData[uuid.uuid4()] = {'Term': key, 'Frequency (%)': str(round((freqs[key]/float(total))*100, 2))}
+                #print key + " " + str(freqs[key]/float(total)) 
+
+
+            model.importDict(tableData)
+            #sort in descending order
+            model.setSortOrder(columnIndex = 1, reverse = 1)
+            table.adjustColumnWidths()
+            table.resizeColumn(0, 200)
+            table.resizeColumn(1, 200)
+            #table.sortTable(columnName='Frequency')
+            table.redrawTable()
                 
     
 def main():
