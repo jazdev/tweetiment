@@ -32,6 +32,7 @@ class TweetimentFrame(tk.Frame):
     twitterAuthOpenedFlag = False
     tweetSentimentOpenedFlag = False
     termFrequenciesOpenedFlag = False
+    happiestStateOpenedFlag = False
     twitterAuthCompletedFlag = False
     
     twitterStreamUpdatedFlag = False
@@ -534,7 +535,25 @@ class TweetimentFrame(tk.Frame):
 
 
     def findHappiestState(self):
-         pass
+        self.count += 1
+        if self.happiestStateOpenedFlag == False:
+            self.happiestStateOpenedFlag = True
+            global HappiestStateWindow
+
+            def toggleFlag():
+                self.happiestStateOpenedFlag = False
+                HappiestStateWindow.destroy()
+                
+            HappiestStateWindow = tk.Toplevel(self)
+            HappiestStateWindow.minsize(500, 500)
+            #TwitterKeysWindow.overrideredirect(True)
+            HappiestStateWindow.geometry("500x500+100+100")
+            HappiestStateWindow.title("Happiest State in the US")
+            HappiestStateWindow.config(bd=5)
+
+            HappiestStateWindow.protocol("WM_DELETE_WINDOW", toggleFlag)
+
+            
                 
     
 def main():
