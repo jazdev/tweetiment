@@ -98,11 +98,14 @@ class TweetimentFrame(tk.Frame):
         RunTweetSentimentButton = tk.Button(self.parent, text = "Run Tweet Sentiment", command = self.findTweetSentiment, bg="blue", fg="white")
         RunTweetSentimentButton.place(x = 100, y = 150, width = 200, height = 30)
 
-        TermFrequencyButton = tk.Button(self.parent, text = "Term Frequencies", command = self.findTermFrequencies, bg="blue", fg="white")
+        TermFrequencyButton = tk.Button(self.parent, text = "Show Term Frequencies", command = self.findTermFrequencies, bg="blue", fg="white")
         TermFrequencyButton.place(x = 100, y = 200, width = 200, height = 30)
+
+        HappiestStateButton = tk.Button(self.parent, text = "Show Happiest State", command = self.findHappiestState, bg="blue", fg="white")
+        HappiestStateButton.place(x = 100, y = 250, width = 200, height = 30)
         
         TweetimentCloseButton = tk.Button(self.parent, text = "Exit", command = lambda: self.parent.destroy(), bg="blue", fg="white")
-        TweetimentCloseButton.place(x = 100, y = 250, width = 70, height = 30)
+        TweetimentCloseButton.place(x = 100, y = 300, width = 70, height = 30)
 
         
     def setTwitterAuth(self):
@@ -528,6 +531,10 @@ class TweetimentFrame(tk.Frame):
             table.resizeColumn(1, 200)
             #table.sortTable(columnName='Frequency')
             table.redrawTable()
+
+
+    def findHappiestState(self):
+         pass
                 
     
 def main():
