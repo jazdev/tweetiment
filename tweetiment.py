@@ -535,26 +535,107 @@ class TweetimentFrame(tk.Frame):
 
 
     def findHappiestState(self):
-        self.count += 1
-        if self.happiestStateOpenedFlag == False:
-            self.happiestStateOpenedFlag = True
-            global HappiestStateWindow
-
-            def toggleFlag():
-                self.happiestStateOpenedFlag = False
-                HappiestStateWindow.destroy()
+        states = {
+            'AK': 'Alaska',
+            'AL': 'Alabama',
+            'AR': 'Arkansas',
+            'AS': 'American Samoa',
+            'AZ': 'Arizona',
+            'CA': 'California',
+            'CO': 'Colorado',
+            'CT': 'Connecticut',
+            'DC': 'District of Columbia',
+            'DE': 'Delaware',
+            'FL': 'Florida',
+            'GA': 'Georgia',
+            'GU': 'Guam',
+            'HI': 'Hawaii',
+            'IA': 'Iowa',
+            'ID': 'Idaho',
+            'IL': 'Illinois',
+            'IN': 'Indiana',
+            'KS': 'Kansas',
+            'KY': 'Kentucky',
+            'LA': 'Louisiana',
+            'MA': 'Massachusetts',
+            'MD': 'Maryland',
+            'ME': 'Maine',
+            'MI': 'Michigan',
+            'MN': 'Minnesota',
+            'MO': 'Missouri',
+            'MP': 'Northern Mariana Islands',
+            'MS': 'Mississippi',
+            'MT': 'Montana',
+            'NA': 'National',
+            'NC': 'North Carolina',
+            'ND': 'North Dakota',
+            'NE': 'Nebraska',
+            'NH': 'New Hampshire',
+            'NJ': 'New Jersey',
+            'NM': 'New Mexico',
+            'NV': 'Nevada',
+            'NY': 'New York',
+            'OH': 'Ohio',
+            'OK': 'Oklahoma',
+            'OR': 'Oregon',
+            'PA': 'Pennsylvania',
+            'PR': 'Puerto Rico',
+            'RI': 'Rhode Island',
+            'SC': 'South Carolina',
+            'SD': 'South Dakota',
+            'TN': 'Tennessee',
+            'TX': 'Texas',
+            'UT': 'Utah',
+            'VA': 'Virginia',
+            'VI': 'Virgin Islands',
+            'VT': 'Vermont',
+            'WA': 'Washington',
+            'WI': 'Wisconsin',
+            'WV': 'West Virginia',
+            'WY': 'Wyoming'
+        }
+        
+        happy_locations = {}
+        full_states = states.values()
+        afinnfile = open(self.AFINNFile)
+        scores = {} # initialize an empty dictionary
+        for line in afinnfile:
+            term, score  = line.split("\t")  # The file is tab-delimited. "\t" means "tab character"
+            scores[term] = int(score)  # Convert the score to an integer.
                 
-            HappiestStateWindow = tk.Toplevel(self)
-            HappiestStateWindow.minsize(500, 500)
-            #TwitterKeysWindow.overrideredirect(True)
-            HappiestStateWindow.geometry("500x500+100+100")
-            HappiestStateWindow.title("Happiest State in the US")
-            HappiestStateWindow.config(bd=5)
+        outfile = open(self.TwitterStreamFile)
+        for line in outfile:
+            json_obj = json.loads(line)
+            try:	 
+                user = json_obj['user']
+                location = user['location'].decode('utf-8')
+                if location != "":
+                    if location in states.values():
+                        #print location
+                        sentiment = 0
+                        text = json_obj['text'].decode('utf-8')
+                        text_list = text.split(' ')		
+                        for char in text_list:
+                            if char in scores:
+                                sentiment += scores[char]
+                        
+                        if location not in happy_locations:	
+                            happy_locations[location] = sentiment
+                        else:
+                            happy_locations[location] += sentiment	
+            except:
+                pass	
+                        
+                        
+        slist = [(k, happy_locations[k]) for k in sorted(happy_locations, key=happy_locations.get, reverse=True)]
+        happiest_state = ""
+        for k, v in states.iteritems():
+            if v == slist[0][0]:
+                happiest_state = v
 
-            HappiestStateWindow.protocol("WM_DELETE_WINDOW", toggleFlag)
+        tkMessageBox.showinfo("Happiest State", "The happiest state in the US is " + str(happiest_state) + ".\n\n(Based on positive sentiments per state)", parent = self.parent)
 
             
-                
     
 def main():
     global root
