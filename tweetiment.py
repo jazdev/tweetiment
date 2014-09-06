@@ -50,10 +50,15 @@ class TweetimentFrame(tk.Frame):
         self.initUI()
         
     def initUI(self):
-        self.parent.title("Tweetiment")
+        self.parent.title("Tweetiment: Easy Twitter Sentiment Analysis")
         self.pack(fill=tk.BOTH, expand=1)
 
-        
+        TweetimentCanvas = tk.Canvas(self.parent, height=130, width=600)
+        TweetimentCanvas.create_text(300, 50, font=("Purisa", 40), text = "TWEETIMENT")
+        TweetimentCanvas.create_text(300, 100, font=("Purisa", 20), text = "Twitter Sentiment Analysis")
+        TweetimentCanvas.place(x = 100, y = 10, width = 600, height = 130)
+
+        global TwitterAuthButton
         if not os.path.isfile(self.TwitterKeysFile):
             TwitterAuthButton = tk.Button(self.parent, text = "Set Twitter Credentials", command = self.setTwitterAuth, bg="blue", fg="white")
             TwitterAuthButton.place(x = 100, y = 50, width = 200, height = 30)
@@ -79,6 +84,7 @@ class TweetimentFrame(tk.Frame):
                 TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = self.var, justify = tk.LEFT, wraplength = 400)
                 TwitterStreamStatusLabel.place(x = 320, y = 100, width = 400, height = 30)
 
+                global UpdateTwitterStreamButton
                 UpdateTwitterStreamButton = tk.Button(self.parent, text = "Update Twitter Stream", command = self.updateTwitterStream, bg="gray", fg="white")
                 UpdateTwitterStreamButton.place(x = 100, y = 100, width = 200, height = 30)
             
@@ -299,9 +305,7 @@ class TweetimentFrame(tk.Frame):
     def threadedTwitterRequest(self):
         start_time = time.time()
 
-##        search_term = TweetSentimentTermEntry.get()
-        
-        
+        #search_term = TweetSentimentTermEntry.get()
         with open("Twitter_API_Keys", "r") as twitter_keys_file:
             twitter_keys = twitter_keys_file.read().split("|")
             print twitter_keys
@@ -361,13 +365,11 @@ class TweetimentFrame(tk.Frame):
                 os.remove(self.TwitterStreamFile)
             response = opener.open(url, encoded_post_data)
             
-            
+            print "Updating Twitter Stream ..."
             for line in response:
                 #print line
                 self.var.set("Updating... This process takes 4-5 minutes to complete.")
-                
-                print "abs(time.time() - start_time)", abs(time.time() - start_time)
-                
+                #print "abs(time.time() - start_time)", abs(time.time() - start_time)
                 if abs(time.time() - start_time) >= 20:
                     self.pb.pack_forget()
                     self.var.set("Update complete.")
