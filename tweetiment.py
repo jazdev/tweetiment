@@ -92,10 +92,10 @@ class TweetimentFrame(tk.Frame):
             self.var.set("Download Required")
         
             TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = self.var, justify = tk.LEFT, wraplength = 400)
-            TwitterStreamStatusLabel.place(x = 320, y = 100, width = 400, height = 30)
+            TwitterStreamStatusLabel.place(x = 180, y = 270, width = 400, height = 30)
 
             DownloadTwitterStreamButton = tk.Button(self.parent, text = "Download Twitter Stream", command = self.updateTwitterStream, bg="blue", fg="white")
-            DownloadTwitterStreamButton.place(x = 100, y = 100, width = 200, height = 30)
+            DownloadTwitterStreamButton.place(x = 420, y = 220, width = 200, height = 30)
 
 ##        global TweetSentimentTermEntry
 ##        TweetSentimentTermEntry = tk.Entry(self.parent, bd =5)
@@ -368,7 +368,7 @@ class TweetimentFrame(tk.Frame):
             print "Updating Twitter Stream ..."
             for line in response:
                 #print line
-                self.var.set("Updating... This process takes 4-5 minutes to complete.")
+                self.var.set("Updating... This process takes 1-2 minutes to complete.")
                 #print "abs(time.time() - start_time)", abs(time.time() - start_time)
                 if abs(time.time() - start_time) >= 20:
                     self.pb.pack_forget()
