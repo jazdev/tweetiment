@@ -56,15 +56,15 @@ class TweetimentFrame(tk.Frame):
         TweetimentCanvas = tk.Canvas(self.parent, height=130, width=600)
         TweetimentCanvas.create_text(300, 50, font=("Purisa", 40), text = "TWEETIMENT")
         TweetimentCanvas.create_text(300, 100, font=("Purisa", 20), text = "Twitter Sentiment Analysis")
-        TweetimentCanvas.place(x = 100, y = 10, width = 600, height = 130)
+        TweetimentCanvas.place(x = 100, y = 40, width = 600, height = 130)
 
         global TwitterAuthButton
         if not os.path.isfile(self.TwitterKeysFile):
             TwitterAuthButton = tk.Button(self.parent, text = "Set Twitter Credentials", command = self.setTwitterAuth, bg="blue", fg="white")
-            TwitterAuthButton.place(x = 100, y = 50, width = 200, height = 30)
+            TwitterAuthButton.place(x = 160, y = 220, width = 200, height = 30)
         else:
             TwitterAuthButton = tk.Button(self.parent, text = "Update Twitter Credentials", command = self.updateTwitterAuth, bg="gray", fg="white")
-            TwitterAuthButton.place(x = 100, y = 50, width = 200, height = 30)
+            TwitterAuthButton.place(x = 160, y = 220, width = 200, height = 30)
 
         
         self.var = tk.StringVar()
@@ -82,11 +82,11 @@ class TweetimentFrame(tk.Frame):
                 self.var.set("Stream last updated on: " + updated)
                 
                 TwitterStreamStatusLabel = tk.Label(self.parent, textvariable = self.var, justify = tk.LEFT, wraplength = 400)
-                TwitterStreamStatusLabel.place(x = 320, y = 100, width = 400, height = 30)
+                TwitterStreamStatusLabel.place(x = 180, y = 270, width = 400, height = 30)
 
                 global UpdateTwitterStreamButton
                 UpdateTwitterStreamButton = tk.Button(self.parent, text = "Update Twitter Stream", command = self.updateTwitterStream, bg="gray", fg="white")
-                UpdateTwitterStreamButton.place(x = 100, y = 100, width = 200, height = 30)
+                UpdateTwitterStreamButton.place(x = 420, y = 220, width = 200, height = 30)
             
         else:
             self.var.set("Download Required")
@@ -103,16 +103,16 @@ class TweetimentFrame(tk.Frame):
 ##        TweetSentimentTermEntry.focus()
         
         RunTweetSentimentButton = tk.Button(self.parent, text = "Run Tweet Sentiment", command = self.findTweetSentiment, bg="blue", fg="white")
-        RunTweetSentimentButton.place(x = 100, y = 150, width = 200, height = 30)
+        RunTweetSentimentButton.place(x = 50, y = 320, width = 200, height = 30)
 
         TermFrequencyButton = tk.Button(self.parent, text = "Show Term Frequencies", command = self.findTermFrequencies, bg="blue", fg="white")
-        TermFrequencyButton.place(x = 100, y = 200, width = 200, height = 30)
+        TermFrequencyButton.place(x = 300, y = 320, width = 200, height = 30)
 
         HappiestStateButton = tk.Button(self.parent, text = "Show Happiest State", command = self.findHappiestState, bg="blue", fg="white")
-        HappiestStateButton.place(x = 100, y = 250, width = 200, height = 30)
+        HappiestStateButton.place(x = 550, y = 320, width = 200, height = 30)
         
-        TweetimentCloseButton = tk.Button(self.parent, text = "Exit", command = lambda: self.parent.destroy(), bg="blue", fg="white")
-        TweetimentCloseButton.place(x = 100, y = 300, width = 70, height = 30)
+##        TweetimentCloseButton = tk.Button(self.parent, text = "Exit", command = lambda: self.parent.destroy(), bg="blue", fg="white")
+##        TweetimentCloseButton.place(x = 100, y = 300, width = 70, height = 30)
 
         
     def setTwitterAuth(self):
