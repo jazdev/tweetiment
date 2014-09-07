@@ -159,6 +159,7 @@ class TweetimentFrame(tk.Frame):
         """
 
         self.count += 1
+
         if self.twitterAuthOpenedFlag == False:
             # set window opened
             self.twitterAuthOpenedFlag = True
@@ -215,11 +216,18 @@ class TweetimentFrame(tk.Frame):
 
 
     def updateTwitterAuth(self):
-        self.count += 1
-        if self.twitterAuthOpenedFlag == False:
+        """
+            Method for displaying the Twitter credentials window for the case when Twitter 
+            credentials have already been entered previously, and need to be updated now.
+        """
 
+        self.count += 1
+
+        if self.twitterAuthOpenedFlag == False:
+            # set window opened
             self.twitterAuthOpenedFlag = True
             
+            # initialize window
             global TwitterKeysWindow
             TwitterKeysWindow = tk.Toplevel(self)
             TwitterKeysWindow.minsize(600, 500)
@@ -229,6 +237,7 @@ class TweetimentFrame(tk.Frame):
             TwitterKeysWindow.config(bd=5)
             L0 = tk.Label(TwitterKeysWindow, justify = tk.LEFT, wraplength = 500, text="""Help:\n\n1. Create a twitter account if you do not already have one.\n2. Go to https://dev.twitter.com/apps and log in with your twitter credentials.\n3. Click "Create New App"\n4. Fill out the form and agree to the terms. Put in a dummy website if you don't have one you want to use.\n5. On the next page, click the "API Keys" tab along the top, then scroll all the way down until you see the section "Your Access Token". Click the button "Create My Access Token" \n6. Copy the four values into the provided space. These values are your "API Key", your "API secret", your "Access token" and your "Access token secret". """)
 
+            # initialize labels
             L1 = tk.Label(TwitterKeysWindow, text="api_key")
             L2 = tk.Label(TwitterKeysWindow, text="api_secret")
             L3 = tk.Label(TwitterKeysWindow, text="access_token_key")
@@ -239,6 +248,7 @@ class TweetimentFrame(tk.Frame):
             L3.place(x=50, y=350, width=150, height=30)
             L4.place(x=50, y=400, width=150, height=30)
 
+            # initialize entry fields
             global E1, E2, E3, E4
             E1 = tk.Entry(TwitterKeysWindow, bd =5)
             E2 = tk.Entry(TwitterKeysWindow, bd =5)
@@ -249,6 +259,7 @@ class TweetimentFrame(tk.Frame):
             E3.place(x=250, y=350, width=300, height=30)
             E4.place(x=250, y=400, width=300, height=30)
 
+            # pre-populate entry fields with stored Twitter credentials
             with open("Twitter_API_Keys", "r") as twitter_keys_file:
                 twitter_keys = twitter_keys_file.read().split("|")
                 print twitter_keys
@@ -257,18 +268,23 @@ class TweetimentFrame(tk.Frame):
                 E3.insert(0, twitter_keys[2])
                 E4.insert(0, twitter_keys[3])
 
+            # focus on the first entry field
             E1.focus()
             
             TwitterKeysWindow.update()
             self.parent.update()
             self.parent.update_idletasks() 
             
+            # button for updating data 
             TwitterVerifyButton = tk.Button(TwitterKeysWindow, text ="Update and Close", command = self.validateTwitterAuth, bg="blue", fg="white")
             TwitterVerifyButton.place(x=250, y=450, width=200, height=30)
 
+            # button for closing window# if window already opened then bring it to front
             TwitterKeysCloseButton = tk.Button(TwitterKeysWindow, text ="Cancel", command = lambda: TwitterKeysWindow.withdraw(), bg="blue", fg="white")
             TwitterKeysCloseButton.place(x=480, y=450, width=70, height=30)
+
         else:
+            # if window already opened then bring it to front
             TwitterKeysWindow.deiconify()        
 
     def validateTwitterAuth(self):
