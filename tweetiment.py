@@ -288,24 +288,33 @@ class TweetimentFrame(tk.Frame):
             TwitterKeysWindow.deiconify()        
 
     def validateTwitterAuth(self):
+        """
+            Method for validating the entered Twitter credentials.
+        """
+
+        # get data from the entry fields
         E1_text = E1.get()
         E2_text = E2.get()
         E3_text = E3.get()
         E4_text = E4.get()
         
+        # validate not null
         if (E1_text == "" or E2_text == "" or E3_text == "" or E4_text == ""):
             tkMessageBox.showerror("ERROR", "Please fill all the fields", parent = TwitterKeysWindow)
+
         else:
             E1_text = E1.get()
             E2_text = E2.get()
             E3_text = E3.get()
             E4_text = E4.get()
+            # store credentials in local file
             with open( self.TwitterKeysFile, "w" ) as twitter_keys_file:
                 twitter_keys_file.write(E1_text + "|" + E2_text + "|" + E3_text + "|" + E4_text)
                 
             self.twitterAuthOpenedFlag = False
             self.twitterAuthCompletedFlag = True
 
+            # write meta-data to config file
             if os.path.isfile(self.ConfigFile):
                 cfg = {}
                 with open('config.json', 'r') as f:
@@ -323,8 +332,6 @@ class TweetimentFrame(tk.Frame):
                 cfg['twitterAuthLastUpdated'] = st
                 with open('config.json', 'w') as f:
                     json.dump(cfg, f)
-
-
 
             self.initUI()
             TwitterKeysWindow.destroy()
