@@ -385,9 +385,16 @@ class TweetimentFrame(tk.Frame):
 
 
     def threadedTwitterRequest(self):
+        """
+            Method for downloading Twitter stream data in a new Thread.
+        """
+
+        # note starting time
         start_time = time.time()
 
         #search_term = TweetSentimentTermEntry.get()
+
+        # read Twitter credentials
         with open("Twitter_API_Keys", "r") as twitter_keys_file:
             twitter_keys = twitter_keys_file.read().split("|")
             #print twitter_keys
@@ -400,13 +407,16 @@ class TweetimentFrame(tk.Frame):
         try:
             _debug = 0
 
+            # oauth token objects
             oauth_token    = oauth.Token(key=access_token_key, secret=access_token_secret)
             oauth_consumer = oauth.Consumer(key=api_key, secret=api_secret)
 
             signature_method_hmac_sha1 = oauth.SignatureMethod_HMAC_SHA1()
 
+            # method = GET
             http_method = "GET"
 
+            # handlers for HTTP and HTTPS
             http_handler  = urllib.HTTPHandler(debuglevel=_debug)
             https_handler = urllib.HTTPSHandler(debuglevel=_debug)
 
@@ -418,20 +428,24 @@ class TweetimentFrame(tk.Frame):
 ##                url += search_term.strip().split()[0]
 ##            print search_term
 
+            # API URL
             url = "https://stream.twitter.com/1/statuses/sample.json"    
             print url
             
+            # optional parameters
             parameters = []
 
-            
+            # make the request object
             req = oauth.Request.from_consumer_and_token(oauth_consumer,
                                                          token=oauth_token,
                                                          http_method=http_method,
                                                          http_url=url, 
                                                          parameters=parameters)
 
+            # sign the request
             req.sign_request(signature_method_hmac_sha1, oauth_consumer, oauth_token)
 
+            # get request headers
             headers = req.to_header()
 
             if http_method == "POST":
@@ -440,19 +454,26 @@ class TweetimentFrame(tk.Frame):
                 encoded_post_data = None
                 url = req.to_url()
 
+            # initialize stream opener
             opener = urllib.OpenerDirector()
             opener.add_handler(http_handler)
             opener.add_handler(https_handler)
+
+            # remove old cached Twitter stream
             if os.path.isfile(self.TwitterStreamFile):
                 os.remove(self.TwitterStreamFile)
+
+            # make the request
             response = opener.open(url, encoded_post_data)
             
             print "Updating Twitter Stream ..."
+
+            # write response to cache file
             for line in response:
-                #print line
                 self.var.set("Updating... This process takes 1-2 minutes to complete.")
-                #print "abs(time.time() - start_time)", abs(time.time() - start_time)
-                if abs(time.time() - start_time) >= 20:
+
+                # update for some time
+                if abs(time.time() - start_time) >= 60:
                     self.pb.pack_forget()
                     self.var.set("Update complete.")
                     return
