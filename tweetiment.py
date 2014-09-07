@@ -40,40 +40,61 @@ __status__ = "Production"
 class TweetimentFrame(tk.Frame):
     """
         This is the base class for the program.
-
-        THis class contains the methods
     """
+
+    # window count
     count = 0
     
+    # window status flags
     twitterAuthOpenedFlag = False
     tweetSentimentOpenedFlag = False
     termFrequenciesOpenedFlag = False
     happiestStateOpenedFlag = False
+
+    # is authenticated flag
     twitterAuthCompletedFlag = False
     
     twitterStreamUpdatedFlag = False
     
+    # file paths
     TwitterKeysFile = "Twitter_API_Keys"
     ConfigFile = "config.json"
     AFINNFile = "word_scores/AFINN-111.txt"
     TwitterStreamFile = "TwitterStream.txt"
 
+    # dictionary for storing configuration data
     config = {}
+
     
+
     def __init__(self, parent):
+        """
+            Initialize the parent Frame
+        """
+        
         tk.Frame.__init__(self, parent)            
         self.parent = parent
         self.initUI()
         
+
+
     def initUI(self):
+        """
+            Method for initializing the root window elements. 
+
+            All root level buttons and labels are initialized here.
+        """
+
         self.parent.title("Tweetiment: Easy Twitter Sentiment Analysis")
         self.pack(fill=tk.BOTH, expand=1)
 
+        # canvas for logo
         TweetimentCanvas = tk.Canvas(self.parent, height=130, width=600)
         TweetimentCanvas.create_text(300, 50, font=("Purisa", 40), text = "TWEETIMENT")
         TweetimentCanvas.create_text(300, 100, font=("Purisa", 20), text = "Twitter Sentiment Analysis")
         TweetimentCanvas.place(x = 100, y = 40, width = 600, height = 130)
 
+        # button for twitter credentials window
         global TwitterAuthButton
         if not os.path.isfile(self.TwitterKeysFile):
             TwitterAuthButton = tk.Button(self.parent, text = "Set Twitter Credentials", command = self.setTwitterAuth, bg="blue", fg="white")
@@ -82,9 +103,9 @@ class TweetimentFrame(tk.Frame):
             TwitterAuthButton = tk.Button(self.parent, text = "Update Twitter Credentials", command = self.updateTwitterAuth, bg="gray", fg="white")
             TwitterAuthButton.place(x = 160, y = 220, width = 200, height = 30)
 
-        
         self.var = tk.StringVar()
-       
+
+        # logic for downloading / updating twitter stream
         if os.path.isfile(self.ConfigFile):
 
             with open(self.ConfigFile, 'r') as f:
@@ -118,25 +139,31 @@ class TweetimentFrame(tk.Frame):
 ##        TweetSentimentTermEntry.place(x = 400, y = 150, width = 200, height = 30)
 ##        TweetSentimentTermEntry.focus()
         
+        # button for running tweet sentiment
         RunTweetSentimentButton = tk.Button(self.parent, text = "Run Tweet Sentiment", command = self.findTweetSentiment, bg="blue", fg="white")
         RunTweetSentimentButton.place(x = 50, y = 320, width = 200, height = 30)
 
+        # button for showing term frequencies
         TermFrequencyButton = tk.Button(self.parent, text = "Show Term Frequencies", command = self.findTermFrequencies, bg="blue", fg="white")
         TermFrequencyButton.place(x = 300, y = 320, width = 200, height = 30)
 
+        # button for showing happiest state in the US
         HappiestStateButton = tk.Button(self.parent, text = "Show Happiest State", command = self.findHappiestState, bg="blue", fg="white")
         HappiestStateButton.place(x = 550, y = 320, width = 200, height = 30)
         
-##        TweetimentCloseButton = tk.Button(self.parent, text = "Exit", command = lambda: self.parent.destroy(), bg="blue", fg="white")
-##        TweetimentCloseButton.place(x = 100, y = 300, width = 70, height = 30)
 
         
     def setTwitterAuth(self):
+        """
+            Method for initializing and displaying the Twitter credentials window.
+        """
+
         self.count += 1
         if self.twitterAuthOpenedFlag == False:
-
+            # set window opened
             self.twitterAuthOpenedFlag = True
-            
+        
+            # initialize window
             global TwitterKeysWindow
             TwitterKeysWindow = tk.Toplevel(self)
             TwitterKeysWindow.minsize(600, 500)
@@ -145,6 +172,7 @@ class TweetimentFrame(tk.Frame):
             TwitterKeysWindow.config(bd=5)
             L0 = tk.Label(TwitterKeysWindow, justify = tk.LEFT, wraplength = 500, text="""Help:\n\n1. Create a twitter account if you do not already have one.\n2. Go to https://dev.twitter.com/apps and log in with your twitter credentials.\n3. Click "Create New App"\n4. Fill out the form and agree to the terms. Put in a dummy website if you don't have one you want to use.\n5. On the next page, click the "API Keys" tab along the top, then scroll all the way down until you see the section "Your Access Token". Click the button "Create My Access Token" \n6. Copy the four values into the provided space. These values are your "API Key", your "API secret", your "Access token" and your "Access token secret". """)
 
+            # initialize labels 
             L1 = tk.Label(TwitterKeysWindow, text="api_key")
             L2 = tk.Label(TwitterKeysWindow, text="api_secret")
             L3 = tk.Label(TwitterKeysWindow, text="access_token_key")
@@ -155,6 +183,7 @@ class TweetimentFrame(tk.Frame):
             L3.place(x=50, y=350, width=150, height=30)
             L4.place(x=50, y=400, width=150, height=30)
 
+            # initialize entry fields
             global E1, E2, E3, E4
             E1 = tk.Entry(TwitterKeysWindow, bd =5)
             E2 = tk.Entry(TwitterKeysWindow, bd =5)
@@ -165,18 +194,23 @@ class TweetimentFrame(tk.Frame):
             E3.place(x=250, y=350, width=300, height=30)
             E4.place(x=250, y=400, width=300, height=30)
 
+            # focus on the first entry field
             E1.focus()
 
             TwitterKeysWindow.update()
             self.parent.update()
             self.parent.update_idletasks() 
 
+            # button for saving entered data and closing credentials window
             TwitterVerifyButton = tk.Button(TwitterKeysWindow, text ="Save and Close", command = self.validateTwitterAuth, bg="blue", fg="white")
             TwitterVerifyButton.place(x=250, y=450, width=200, height=30)
 
+            # button for closing credentials window
             TwitterKeysCloseButton = tk.Button(TwitterKeysWindow, text ="Cancel", command = lambda: TwitterKeysWindow.withdraw(), bg="blue", fg="white")
             TwitterKeysCloseButton.place(x=480, y=450, width=70, height=30)
+
         else:
+            # if window already opened then bring it to front
             TwitterKeysWindow.deiconify()
 
 
