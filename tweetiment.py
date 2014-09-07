@@ -338,22 +338,30 @@ class TweetimentFrame(tk.Frame):
 
 
     def updateTwitterStream(self):
-        
+        """
+            Method for updating / downloading the Twitter data stream.
+        """
+
         with open('config.json', 'r') as f:
             cfg = json.load(f)
                     
+        # if authenticated
         if cfg['twitterAuthCompletedFlag'] == True:
 
             print "twitterAuthCompletedFlag = True"
+
+            # initialize and start progress bar
             self.pb = ttk.Progressbar(self.parent, orient=tk.HORIZONTAL, mode='indeterminate', length = 200)
             self.pb.pack(side = tk.BOTTOM, fill = tk.BOTH)
             self.pb.start()
 
             self.var.set("Updating stream ... This operation takes 1-2 minutes to complete.")
             
+            # start a new Thread to download Twitter stream in the background
             t= Thread(target=self.threadedTwitterRequest)
             t.start()
             
+            # store update timestamp in config
             st = datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%Y %H:%M:%S')
             if os.path.isfile(self.ConfigFile):
                 cfg = {}
@@ -371,6 +379,7 @@ class TweetimentFrame(tk.Frame):
             self.initUI()
 
         else:
+            # else, show not authenticated error
             tkMessageBox.showerror("ERROR", "Twitter API credentials not filled.", parent = self.parent)
             
 
