@@ -1,32 +1,39 @@
 #!/usr/bin/python
 
+import os
+import re
+import sys
+import json
+import uuid
+import time, datetime
+import ConfigParser
+import oauth2 as oauth
+import urllib2 as urllib
+from time import sleep
+from threading import Thread
+
+# Tkinter
 try:
     import Tkinter as tk     ## Python 2.x
 except ImportError:
     import tkinter as tk     ## Python 3.x 
 
-import os
-import re
-import sys
 import ttk
-import json
-import uuid
 import tkMessageBox
-import ConfigParser
-import time, datetime
-import oauth2 as oauth
-import urllib2 as urllib
-from time import sleep
 from ttk import Frame, Style
-from threading import Thread
+
+# Tkintertable
 from tkintertable.Tables import TableCanvas
 from tkintertable.TableModels import TableModel
 
+
+
 class TweetimentFrame(tk.Frame):
     """
+        This is the base class for the program.
 
+        THis class contains the methods
     """
-
     count = 0
     
     twitterAuthOpenedFlag = False
