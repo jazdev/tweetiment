@@ -27,6 +27,15 @@ from tkintertable.Tables import TableCanvas
 from tkintertable.TableModels import TableModel
 
 
+__author__ = "Jasdev Singh"
+__copyright__ = "Copyright (C) 2014 Jasdev Singh"
+__credits__ = ["Jasdev Singh"]
+__license__ = "MIT"
+__version__ = "1.0"
+__maintainer__ = "Jasdev Singh"
+__email__ = "jasdev@singh.am"
+__status__ = "Production"
+
 
 class TweetimentFrame(tk.Frame):
     """
