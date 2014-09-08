@@ -9,16 +9,16 @@ import os
 import re
 import sys
 import ttk
+import json
 import uuid
-from ttk import Frame, Style
 import tkMessageBox
 import ConfigParser
 import time, datetime
-import json
 import oauth2 as oauth
 import urllib2 as urllib
-from threading import Thread
 from time import sleep
+from ttk import Frame, Style
+from threading import Thread
 from tkintertable.Tables import TableCanvas
 from tkintertable.TableModels import TableModel
 
@@ -276,7 +276,7 @@ class TweetimentFrame(tk.Frame):
             self.pb.pack(side = tk.BOTTOM, fill = tk.BOTH)
             self.pb.start()
 
-            self.var.set("Updating stream ... This operation takes 4-5 minutes to complete.")
+            self.var.set("Updating stream ... This operation takes 1-2 minutes to complete.")
             
             t= Thread(target=self.threadedTwitterRequest)
             t.start()
@@ -308,7 +308,7 @@ class TweetimentFrame(tk.Frame):
         #search_term = TweetSentimentTermEntry.get()
         with open("Twitter_API_Keys", "r") as twitter_keys_file:
             twitter_keys = twitter_keys_file.read().split("|")
-            print twitter_keys
+            #print twitter_keys
 
         api_key = twitter_keys[0]
         api_secret = twitter_keys[1]
@@ -640,6 +640,10 @@ class TweetimentFrame(tk.Frame):
             
     
 def main():
+    """
+        The main function. 
+        This function sets up the root Tkinter window.
+    """
     global root
     root = tk.Tk()
     root.geometry("800x400+100+100")
