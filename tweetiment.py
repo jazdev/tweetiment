@@ -586,12 +586,17 @@ class TweetimentFrame(tk.Frame):
                    
 
     def findTermFrequencies(self):
-        
+        """
+            Method for calculating the frequencies of each term in the tweets.
+        """
+
         self.count += 1
         if self.termFrequenciesOpenedFlag == False:
+            # set window opened
             self.termFrequenciesOpenedFlag = True
-            global TermFrequenciesWindow
 
+            # initialize window
+            global TermFrequenciesWindow
             def toggleFlag():
                 self.termFrequenciesOpenedFlag = False
                 TermFrequenciesWindow.destroy()
@@ -602,16 +607,20 @@ class TweetimentFrame(tk.Frame):
             TermFrequenciesWindow.geometry("500x500+100+100")
             TermFrequenciesWindow.title("Term Frequencies (only > 0.5%)")
             TermFrequenciesWindow.config(bd=5)
-
             TermFrequenciesWindow.protocol("WM_DELETE_WINDOW", toggleFlag)
 
+            # create a new TableModel for table data
             model = TableModel()
+
+            # create a new TableCanvas for showing the table
             table = TableCanvas(TermFrequenciesWindow, model=model,
                                  editable=False)
             table.createTableFrame()
 
+            # dictionary for storing table data
             tableData = {}
             
+            # calculate frequencies
             freqs = {}
             total = 0
             outfile = open(self.TwitterStreamFile)
@@ -619,6 +628,7 @@ class TweetimentFrame(tk.Frame):
                 json_obj = json.loads(line)
                 try:            
                     text = json_obj['text'].decode('utf-8')
+                    # clean the text
                     text = ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)","",text).split())
                     text = re.sub(r'^https?:\/\/.*[\r\n]*', '', text, flags=re.MULTILINE)
                     text = re.sub(r'RT', '', text, flags=re.MULTILINE)
@@ -638,18 +648,19 @@ class TweetimentFrame(tk.Frame):
                     
             for key in freqs.keys():
                 if freqs[key]/float(total) > 0.005:
+                    # insert frequencies into the table dictionary
                     tableData[uuid.uuid4()] = {'Term': key, 'Frequency (%)': str(round((freqs[key]/float(total))*100, 2))}
                 #print key + " " + str(freqs[key]/float(total)) 
 
-
+            # insert and sort data in the table
             model.importDict(tableData)
             #sort in descending order
             model.setSortOrder(columnIndex = 1, reverse = 1)
             table.adjustColumnWidths()
             table.resizeColumn(0, 200)
             table.resizeColumn(1, 200)
-            #table.sortTable(columnName='Frequency')
             table.redrawTable()
+
 
 
     def findHappiestState(self):
