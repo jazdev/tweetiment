@@ -215,6 +215,7 @@ class TweetimentFrame(tk.Frame):
             TwitterKeysWindow.deiconify()
 
 
+
     def updateTwitterAuth(self):
         """
             Method for displaying the Twitter credentials window for the case when Twitter 
@@ -287,6 +288,8 @@ class TweetimentFrame(tk.Frame):
             # if window already opened then bring it to front
             TwitterKeysWindow.deiconify()        
 
+
+
     def validateTwitterAuth(self):
         """
             Method for validating the entered Twitter credentials.
@@ -335,6 +338,7 @@ class TweetimentFrame(tk.Frame):
 
             self.initUI()
             TwitterKeysWindow.destroy()
+
 
 
     def updateTwitterStream(self):
@@ -486,36 +490,41 @@ class TweetimentFrame(tk.Frame):
 
             
     def findTweetSentiment(self):
+        """
+            Method for calculating the sentiment of each tweet.
+        """
 
         self.count += 1
         if self.tweetSentimentOpenedFlag == False:
-
+            # set window opened
             self.tweetSentimentOpenedFlag = True
 
+            # initialize window
             global TweetSentimentWindow
-            
             def toggleFlag():
                 self.tweetSentimentOpenedFlag = False
                 TweetSentimentWindow.destroy()
 
-                
-            
             TweetSentimentWindow = tk.Toplevel(self)
             TweetSentimentWindow.minsize(600, 500)
             #TwitterKeysWindow.overrideredirect(True)
             TweetSentimentWindow.geometry("1000x500+100+100")
             TweetSentimentWindow.title("Tweet Sentiments (Zero values omitted)")
             TweetSentimentWindow.config(bd=5)
-
             TweetSentimentWindow.protocol("WM_DELETE_WINDOW", toggleFlag)
 
+            # create a new TableModel for table data
             model = TableModel()
+
+            # create a new TableCanvas for showing the table
             table = TableCanvas(TweetSentimentWindow, model=model,
                                  editable=False)
             table.createTableFrame()
 
+            # dictionary for storing table data
             tableData = {}
             
+            # calculate sentiments
             afinnfile = open(self.AFINNFile)
             scores = {} 
             for line in afinnfile:
@@ -523,7 +532,6 @@ class TweetimentFrame(tk.Frame):
                     scores[term] = int(score)  
 
             #print scores.items() 
-
             positive = 0.0
             negative = 0.0
             
@@ -533,10 +541,10 @@ class TweetimentFrame(tk.Frame):
                     sentiment = 0
                     try:            
                         text = json_obj['text'].decode('utf-8')
+                        # clean the text
                         text = ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)","",text).split())
                         text = re.sub(r'^https?:\/\/.*[\r\n]*', '', text, flags=re.MULTILINE)
                         text = re.sub(r'RT', '', text, flags=re.MULTILINE)
-                        
                         #print text
                         text_list = text.split(' ')
                         for char in text_list:
@@ -544,6 +552,7 @@ class TweetimentFrame(tk.Frame):
                                     sentiment += scores[char]
 
                         if sentiment != 0:
+                            # add items to table data dictionary
                             tableData[uuid.uuid4()] = {'Tweet': text, 'Score': str(sentiment)}
                             if sentiment > 0:
                                 positive += 1
@@ -551,15 +560,16 @@ class TweetimentFrame(tk.Frame):
                                 negative += 1
                             #print text + "   " + str(sentiment) + "\n\n"
                             
-
                     except:
                         #print "passed"
                         pass
+
+            # calculate ratio            
             if positive > 0 and negative > 0:
                 ratio = round(float(positive) / float(negative), 2)
                 
+            # insert and sort data in the table
             model.importDict(tableData)
-            #table.adjustColumnWidths()
             table.resizeColumn(0, 850)
             table.resizeColumn(1, 50)
             table.sortTable(columnName='Score')
@@ -570,10 +580,13 @@ class TweetimentFrame(tk.Frame):
             else:    
                 extra = "The overall sentiment is NEGATIVE."
             
+            # show info box about the overall result
             tkMessageBox.showinfo("Score Ratio", "The ratio of positive vs. negative tweets is " + str(ratio) + ". " + extra, parent = TweetSentimentWindow)
 
-                    
+                   
+
     def findTermFrequencies(self):
+        
         self.count += 1
         if self.termFrequenciesOpenedFlag == False:
             self.termFrequenciesOpenedFlag = True

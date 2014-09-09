@@ -1,4 +1,4 @@
-tweetiment v0.1
+tweetiment v1.0
 ===============
 
 Tweetiment: Twitter Sentiment Analysis
