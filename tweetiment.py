@@ -664,6 +664,11 @@ class TweetimentFrame(tk.Frame):
 
 
     def findHappiestState(self):
+        """
+            Method for findint the happiest state in the US based on positive tweets per region.
+        """
+
+        # dictionary of US states
         states = {
             'AK': 'Alaska',
             'AL': 'Alabama',
@@ -724,20 +729,22 @@ class TweetimentFrame(tk.Frame):
             'WY': 'Wyoming'
         }
         
+        # find the happiest state in the US
         happy_locations = {}
         full_states = states.values()
+
         afinnfile = open(self.AFINNFile)
         scores = {} # initialize an empty dictionary
         for line in afinnfile:
-            term, score  = line.split("\t")  # The file is tab-delimited. "\t" means "tab character"
+            term, score  = line.split("\t")  
             scores[term] = int(score)  # Convert the score to an integer.
                 
         outfile = open(self.TwitterStreamFile)
         for line in outfile:
             json_obj = json.loads(line)
             try:	 
-                user = json_obj['user']
-                location = user['location'].decode('utf-8')
+                user = json_obj['user'] # extract user
+                location = user['location'].decode('utf-8') # extract user's location
                 if location != "":
                     if location in states.values():
                         #print location
@@ -755,13 +762,14 @@ class TweetimentFrame(tk.Frame):
             except:
                 pass	
                         
-                        
+        # sort the sentiment values in decreasing order, and pick the first one                
         slist = [(k, happy_locations[k]) for k in sorted(happy_locations, key=happy_locations.get, reverse=True)]
         happiest_state = ""
         for k, v in states.iteritems():
             if v == slist[0][0]:
                 happiest_state = v
 
+        # show info box with the name of the happiest state in the US
         tkMessageBox.showinfo("Happiest State", "The happiest state in the US is " + str(happiest_state) + ".\n\n(Based on positive sentiments per state)", parent = self.parent)
 
             
@@ -771,6 +779,8 @@ def main():
         The main function. 
         This function sets up the root Tkinter window.
     """
+
+    # initialize root frame and run the app
     global root
     root = tk.Tk()
     root.geometry("800x400+100+100")
