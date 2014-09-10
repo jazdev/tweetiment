@@ -359,7 +359,7 @@ class TweetimentFrame(tk.Frame):
             self.pb.pack(side = tk.BOTTOM, fill = tk.BOTH)
             self.pb.start()
 
-            self.var.set("Updating stream ... This operation takes 1-2 minutes to complete.")
+            self.var.set("Updating stream ... This operation takes 1-2 minutes to complete. Please wait ...")
             
             # start a new Thread to download Twitter stream in the background
             t= Thread(target=self.threadedTwitterRequest)
@@ -474,7 +474,7 @@ class TweetimentFrame(tk.Frame):
 
             # write response to cache file
             for line in response:
-                self.var.set("Updating... This process takes 1-2 minutes to complete.")
+                self.var.set("Updating... This process takes 1-2 minutes to complete. Please wait ...")
 
                 # update for some time
                 if abs(time.time() - start_time) >= 60:
