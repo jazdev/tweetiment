@@ -88,17 +88,12 @@ After filling out your Twitter API credentials, press the ```Download Twitter St
 
 <img style="float: right" src="https://raw.githubusercontent.com/jazdev/tweetiment/master/screenshots/3.png" alt="Tweetiment: Update Twitter Strean File" />
 
+####d. Run Tweet Sentiment
 
+After the Twitter stream has been downloaded and saved to the cache, we can proceed to find the sentiments of the cached Tweets. Press the ```Run Tweet Sentiment``` button to start this process. This will open a new window with the results displayed in a table. Plus, an alert will also be shown that summarizes the results. The alert box will show the ratio of positive to negative sentiments. If the resulting ratio is greater than 1, it means that the overall sentiment is positive, else the overall sentiment is negative.
 
+<img style="float: right" src="https://raw.githubusercontent.com/jazdev/tweetiment/master/screenshots/5.png" alt="Tweetiment: Run Tweet Sentiment Summary" />
 
+The figure below shows the table which lists the individual tweets with their corresponding sentiments. The table data is sorted in ascending order for better readability.
 
-
-
-
-
-
-
-
-
-
-
+<img style="float: right" src="https://raw.githubusercontent.com/jazdev/tweetiment/master/screenshots/6.png" alt="Tweetiment: Run Tweet Sentiment Table" />
