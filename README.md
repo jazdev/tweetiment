@@ -53,7 +53,17 @@ In particular, this program requires you to have the following libraries:
 * oauth2
 * urllib2
 
-###2. Setup & Configuration
+###2. Running the Program
+
+The program can be run in the following ways:
+
+* Command Line method:
+	
+	```python tweetiment.py```
+
+* Using IDLE:
+
+	Open the file in IDLE IDE and press F5 to run the program
 
 
 
