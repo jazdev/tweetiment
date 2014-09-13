@@ -66,6 +66,22 @@ The program can be run in the following ways:
 	Open the file in IDLE IDE and press F5 to run the program
 
 
+###3. Program Walkthrough
+
+The correct way to use this program is as follows:
+
+####a. Main Screen
+
+This is the main screen of the program. It has all the options that the user can select by pressing the appropriate button. Usually, you'll want to select the ```Set Twitter Credentials`` button if this is the first time you are running the program.
+
+<img style="float: right" src="https://raw.githubusercontent.com/jazdev/tweetiment/master/screenshots/1.png" alt="Tweetiment: Main screen" />
+
+####b. Set Twitter Credentials Screen
+
+This screen allows the user to save his/her Twitter API access credentials in the program. This step is *required* and must be completed before moving further.
+
+<img style="float: right" src="https://raw.githubusercontent.com/jazdev/tweetiment/master/screenshots/2.png" alt="Tweetiment: Set Twitter Credentials Screen" />
+
 
 
 
