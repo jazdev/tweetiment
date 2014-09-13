@@ -345,6 +345,9 @@ class TweetimentFrame(tk.Frame):
         """
             Method for updating / downloading the Twitter data stream.
         """
+        if not os.path.isfile(self.TwitterKeysFile):
+            tkMessageBox.showerror("ERROR", "Twitter API credentials not filled. Use the Set/Update Twitter Credentials button to do so.", parent = self.parent)
+            return
 
         with open('config.json', 'r') as f:
             cfg = json.load(f)
@@ -392,6 +395,9 @@ class TweetimentFrame(tk.Frame):
         """
             Method for downloading Twitter stream data in a new Thread.
         """
+        if not os.path.isfile(self.TwitterKeysFile):
+            tkMessageBox.showerror("ERROR", "Twitter API credentials not filled. Use the Set/Update Twitter Credentials button to do so.", parent = self.parent)
+            return
 
         # note starting time
         start_time = time.time()
@@ -494,6 +500,10 @@ class TweetimentFrame(tk.Frame):
             Method for calculating the sentiment of each tweet.
         """
 
+        if not os.path.isfile(self.TwitterKeysFile):
+            tkMessageBox.showerror("ERROR", "Twitter API credentials not filled. Use the Set/Update Twitter Credentials button to do so.", parent = self.parent)
+            return
+
         self.count += 1
         if self.tweetSentimentOpenedFlag == False:
             # set window opened
@@ -590,6 +600,10 @@ class TweetimentFrame(tk.Frame):
             Method for calculating the frequencies of each term in the tweets.
         """
 
+        if not os.path.isfile(self.TwitterKeysFile):
+            tkMessageBox.showerror("ERROR", "Twitter API credentials not filled. Use the Set/Update Twitter Credentials button to do so.", parent = self.parent)
+            return
+
         self.count += 1
         if self.termFrequenciesOpenedFlag == False:
             # set window opened
@@ -667,6 +681,10 @@ class TweetimentFrame(tk.Frame):
         """
             Method for findint the happiest state in the US based on positive tweets per region.
         """
+
+        if not os.path.isfile(self.TwitterKeysFile):
+            tkMessageBox.showerror("ERROR", "Twitter API credentials not filled. Use the Set/Update Twitter Credentials button to do so.", parent = self.parent)
+            return
 
         # dictionary of US states
         states = {
