@@ -72,15 +72,22 @@ The correct way to use this program is as follows:
 
 ####a. Main Screen
 
-This is the main screen of the program. It has all the options that the user can select by pressing the appropriate button. Usually, you'll want to select the ```Set Twitter Credentials`` button if this is the first time you are running the program.
+This is the main screen of the program. It has all the options that the user can select by pressing the appropriate button. Usually, you'll want to select the ```Set Twitter Credentials``` button if this is the first time you are running the program.
 
 <img style="float: right" src="https://raw.githubusercontent.com/jazdev/tweetiment/master/screenshots/1.png" alt="Tweetiment: Main screen" />
 
 ####b. Set Twitter Credentials Screen
 
-This screen allows the user to save his/her Twitter API access credentials in the program. This step is *required* and must be completed before moving further.
+This screen allows the user to save his/her Twitter API access credentials in the program. This step is **required** and must be completed before moving further. The steps to get your own API credentials are mentioned in the same window. (See screenshot below)
 
 <img style="float: right" src="https://raw.githubusercontent.com/jazdev/tweetiment/master/screenshots/2.png" alt="Tweetiment: Set Twitter Credentials Screen" />
+
+####c. Update Twitter Strean File
+
+After filling out your Twitter API credentials, press the ```Download Twitter Stream``` button (if first run) or the ```Update Twitter Stream``` button (if not first run). This causes the program to connect to the Twitter API with the provided credentials, and download a stream of tweets to a local cache file on the users hard drive. This process takes 1-2 minutes to complete because we need sufficient amount of accumulated tweets before we move on to further processing.
+
+<img style="float: right" src="https://raw.githubusercontent.com/jazdev/tweetiment/master/screenshots/3.png" alt="Tweetiment: Update Twitter Strean File" />
+
 
 
 
