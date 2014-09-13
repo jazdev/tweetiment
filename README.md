@@ -97,3 +97,10 @@ After the Twitter stream has been downloaded and saved to the cache, we can proc
 The figure below shows the table which lists the individual tweets with their corresponding sentiments. The table data is sorted in ascending order for better readability.
 
 <img style="float: right" src="https://raw.githubusercontent.com/jazdev/tweetiment/master/screenshots/6.png" alt="Tweetiment: Run Tweet Sentiment Table" />
+
+####e. Show Term Frequencies
+
+Press the ```Show Term Frequencies``` button to start this process. This will open a new window with the results displayed in a table. The table lists, in descending order, the individual words and their corresponding frequencies. This gives us an idea about the most common terms that are being used in the tweets.
+
+<img style="float: right" src="https://raw.githubusercontent.com/jazdev/tweetiment/master/screenshots/7.png" alt="Tweetiment: Show Term Frequencies" />
+
