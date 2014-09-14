@@ -1,14 +1,12 @@
 tweetiment v1.0
 ===============
 
+Developed by [Jasdev Singh](http://singh.am)
+
 Tweetiment: Twitter Sentiment Analysis
-
-This project is NOT under active development.
-
 ======================
 
 This document gives a quick overview on how to use this program.
-
 
 ###1. Installation
 
@@ -109,3 +107,5 @@ Press the ```Show Term Frequencies``` button to start this process. This will op
 Press the ```Show Happiest State``` button to start this process. This will open a new alert box that shows the happiest state in the US based on the positiive sentiments of the tweets per US state.
 
 <img style="float: right" src="https://raw.githubusercontent.com/jazdev/tweetiment/master/screenshots/8.png" alt="Tweetiment: Show Happiest State" />
+
+======================
