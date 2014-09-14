@@ -104,3 +104,8 @@ Press the ```Show Term Frequencies``` button to start this process. This will op
 
 <img style="float: right" src="https://raw.githubusercontent.com/jazdev/tweetiment/master/screenshots/7.png" alt="Tweetiment: Show Term Frequencies" />
 
+####f. Show Happiest State
+
+Press the ```Show Happiest State``` button to start this process. This will open a new alert box that shows the happiest state in the US based on the positiive sentiments of the tweets per US state.
+
+<img style="float: right" src="https://raw.githubusercontent.com/jazdev/tweetiment/master/screenshots/8.png" alt="Tweetiment: Show Happiest State" />
