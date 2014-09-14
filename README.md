@@ -44,6 +44,11 @@ To install the required packages use the following command:
 		$ pip install -r /path/to/requirements.txt
 ```	
 
+To install Tkinter on Ubuntu, use the following command:
+```
+		$ sudo apt-get install python python-tk idle python-pmw python-imaging
+```		
+
 In particular, this program requires you to have the following libraries:
 * Tkinter
 * ttk
